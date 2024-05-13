@@ -15,11 +15,7 @@ const getNote = async (slug: string) => {
   return result?.[0];
 };
 
-export default async function NoteDetailPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function NoteDetailPage({ params }: { params: { slug: string } }) {
   const note = await getNote(params.slug);
 
   return (

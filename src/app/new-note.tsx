@@ -45,12 +45,7 @@ export const NewNote = () => {
         minLength={1}
         onChange={(e) => setContent(e.target.value)}
       />
-      <input
-        type="submit"
-        aria-busy={isLoading}
-        value="Submit"
-        disabled={isLoading}
-      />
+      <input type="submit" aria-busy={isLoading} value="Submit" disabled={isLoading} />
     </form>
   );
 };
