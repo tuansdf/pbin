@@ -6,12 +6,12 @@ const createSchema = z.object({
   content: z.string().min(1),
 });
 
-const DEFAULT_ID_SIZE = 21;
+const DEFAULT_ID_SIZE = 8;
 
 export const POST = async (request: Request) => {
   const parseResult = await createSchema.safeParseAsync(await request.json());
   if (!parseResult.success) {
-    return Response.json({ message: "Missing content" }, { status: 400 });
+    return Response.json({ message: "Missing link" }, { status: 400 });
   }
   const content = parseResult.data.content || "";
   const publicId = generateId(DEFAULT_ID_SIZE);
