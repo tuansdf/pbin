@@ -28,3 +28,35 @@ const passwordNano = customAlphabet(passwordAlphabet, DEFAULT_PASSWORD_SIZE);
 export const generatePassword = (size = DEFAULT_PASSWORD_SIZE) => {
   return passwordNano(size);
 };
+
+export const generateRandomAndHandleCollision = async ({
+  randomFn,
+  checkCollisionFn,
+  maxRetries = 100,
+}: {
+  randomFn: () => string;
+  checkCollisionFn: (text: string) => Promise<boolean>; // true: collision, false: no collision
+  maxRetries?: number;
+}) => {
+  let retryCount = 0;
+  let random = "";
+  while (!random) {
+    if (retryCount > maxRetries) {
+      throw new Error("Cannot generate ID");
+    }
+    let temp = "";
+    try {
+      temp = randomFn();
+      const isCollision = await checkCollisionFn(temp);
+      if (!isCollision) {
+        random = temp;
+      } else {
+        console.error("Collision: " + temp);
+      }
+    } catch (e) {
+      console.error("Collision: " + temp);
+    }
+    retryCount++;
+  }
+  return random;
+};

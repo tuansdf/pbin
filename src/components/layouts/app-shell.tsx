@@ -11,7 +11,7 @@ type Props = PropsWithChildren;
 
 export const AppShell = ({ children }: Props) => {
   const pathname = usePathname();
-  const [opened, { toggle }] = useDisclosure(true);
+  const [opened, { toggle }] = useDisclosure(false);
 
   return (
     <AppShellM
