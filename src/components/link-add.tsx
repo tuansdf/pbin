@@ -3,7 +3,7 @@
 import { usePasswordStore } from "@/hooks/use-password-store";
 import fclasses from "@/styles/form.module.scss";
 import { encryptText } from "@/utils/crypto";
-import { Box, Button, LoadingOverlay, PasswordInput, Textarea, Title } from "@mantine/core";
+import { Button, Card, LoadingOverlay, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -50,57 +50,64 @@ export const LinkAdd = () => {
   };
 
   return (
-    <Box pos="relative">
-      <form onSubmit={handleSubmit(handleFormSubmit)} className={fclasses["form"]}>
-        <Title>Shorten a link</Title>
-        <Textarea
-          autoComplete="off"
-          autoFocus
-          rows={2}
-          required
-          label="Link"
-          {...register("content", {
-            minLength: {
-              value: 1,
-              message: "Required",
-            },
-            required: {
-              value: true,
-              message: "Required",
-            },
-            validate: (v) => {
-              try {
-                new URL(v);
-              } catch (e) {
-                return "Must be a valid link";
-              }
-            },
-          })}
-          error={errors.content?.message}
-        />
-        <PasswordInput
-          type="password"
-          autoComplete="current-password"
-          required
-          label="Password"
-          {...register("password", {
-            minLength: {
-              value: 10,
-              message: "Must have at least 10 characters",
-            },
-            required: {
-              value: true,
-              message: "Required",
-            },
-          })}
-          error={errors.password?.message}
-        />
-        <Button type="submit" w="max-content">
-          Submit
-        </Button>
-      </form>
+    <Card
+      shadow="sm"
+      padding="lg"
+      radius="md"
+      pos="relative"
+      withBorder
+      component="form"
+      onSubmit={handleSubmit(handleFormSubmit)}
+      className={fclasses["form"]}
+      maw="30rem"
+    >
+      <Title>Shorten a link</Title>
+      <TextInput
+        autoComplete="off"
+        autoFocus
+        required
+        label="Link"
+        {...register("content", {
+          minLength: {
+            value: 1,
+            message: "Required",
+          },
+          required: {
+            value: true,
+            message: "Required",
+          },
+          validate: (v) => {
+            try {
+              new URL(v);
+            } catch (e) {
+              return "Must be a valid link";
+            }
+          },
+        })}
+        error={errors.content?.message}
+      />
+      <PasswordInput
+        type="password"
+        autoComplete="current-password"
+        required
+        label="Password"
+        {...register("password", {
+          minLength: {
+            value: 10,
+            message: "Must have at least 10 characters",
+          },
+          required: {
+            value: true,
+            message: "Required",
+          },
+        })}
+        error={errors.password?.message}
+      />
+      <Button type="submit" w="max-content">
+        Submit
+      </Button>
 
       <LoadingOverlay visible={isLoading} />
-    </Box>
+    </Card>
   );
 };
