@@ -3,10 +3,11 @@
 import { usePasswordStore } from "@/hooks/use-password-store";
 import fclasses from "@/styles/form.module.scss";
 import { encryptText } from "@/utils/crypto";
-import { Button, Card, LoadingOverlay, PasswordInput, TextInput, Title } from "@mantine/core";
+import { Button, Card, CopyButton, LoadingOverlay, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import classes from "./link-add.module.scss";
 
 type FormValues = {
   content: string;
@@ -23,13 +24,16 @@ export const LinkAdd = () => {
   const {
     handleSubmit,
     register,
+    setValue,
     formState: { errors },
+    reset,
   } = useForm<FormValues>({
     defaultValues: defaultFormValues,
     reValidateMode: "onSubmit",
   });
   const [passwords, setPasswords] = usePasswordStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [shortLink, setShortLink] = useState("");
 
   const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
@@ -40,14 +44,23 @@ export const LinkAdd = () => {
         body: JSON.stringify({ content: encrypted }),
       });
       const body = (await res.json()) as { id: string | undefined };
+      setValue("password", "");
       setPasswords((prev) => prev?.add(data.password));
-      router.push(`/s/${body.id}`);
+      const shortLink = window.location.origin + `/s/${body.id}`;
+      setShortLink(shortLink);
     } catch (e) {
       console.error(e);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const resetForm = () => {
+    reset();
+    setShortLink("");
+  };
+
+  const isSubmitted = !!shortLink;
 
   return (
     <Card
@@ -66,7 +79,8 @@ export const LinkAdd = () => {
         autoComplete="off"
         autoFocus
         required
-        label="Link"
+        label="Long link"
+        readOnly={isSubmitted}
         {...register("content", {
           minLength: {
             value: 1,
@@ -86,26 +100,52 @@ export const LinkAdd = () => {
         })}
         error={errors.content?.message}
       />
-      <PasswordInput
-        type="password"
-        autoComplete="current-password"
-        required
-        label="Password"
-        {...register("password", {
-          minLength: {
-            value: 10,
-            message: "Must have at least 10 characters",
-          },
-          required: {
-            value: true,
-            message: "Required",
-          },
-        })}
-        error={errors.password?.message}
-      />
-      <Button type="submit" w="max-content">
-        Submit
-      </Button>
+      {!isSubmitted && (
+        <PasswordInput
+          type="password"
+          autoComplete="current-password"
+          required
+          label="Password"
+          {...register("password", {
+            minLength: {
+              value: 10,
+              message: "Must have at least 10 characters",
+            },
+            required: {
+              value: true,
+              message: "Required",
+            },
+          })}
+          error={errors.password?.message}
+        />
+      )}
+      {isSubmitted && (
+        <>
+          <TextInput readOnly label="Short link" value={shortLink} />
+          <div className={classes["buttons"]}>
+            <Button component="a" href={shortLink} target="_blank" variant="default">
+              Open
+            </Button>
+            <CopyButton value={shortLink}>
+              {({ copied, copy }) => (
+                <Button color={copied ? "teal" : "blue"} onClick={copy}>
+                  {copied ? "Copied url" : "Copy url"}
+                </Button>
+              )}
+            </CopyButton>
+          </div>
+        </>
+      )}
+      {!isSubmitted && (
+        <Button type="submit" w="max-content">
+          Submit
+        </Button>
+      )}
+      {isSubmitted && (
+        <Button type="reset" w="max-content" onClick={resetForm}>
+          Make another
+        </Button>
+      )}
 
       <LoadingOverlay visible={isLoading} />
     </Card>

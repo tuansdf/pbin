@@ -1,3 +1,5 @@
+"use client";
+
 import { createTheme, MantineProvider as MantineProviderM } from "@mantine/core";
 import { PropsWithChildren } from "react";
 
