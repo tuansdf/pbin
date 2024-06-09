@@ -4,7 +4,6 @@ import { ErrorMessage } from "@/components/error";
 import { Loading } from "@/components/loading";
 import { usePasswordStore } from "@/hooks/use-password-store";
 import { decryptText } from "@/utils/crypto";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 type Props = {
@@ -14,7 +13,6 @@ type Props = {
 };
 
 export const LinkDetail = ({ item }: Props) => {
-  const router = useRouter();
   const [passwords] = usePasswordStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);

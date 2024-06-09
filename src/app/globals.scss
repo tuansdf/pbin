@@ -1,7 +1,4 @@
-@use "@picocss/pico/scss/pico" with (
-  $theme-color: "blue"
-);
-
 :root {
-  --pico-font-size: 100%;
+  --screen-height: 100vh;
+  --screen-height: 100svh;
 }

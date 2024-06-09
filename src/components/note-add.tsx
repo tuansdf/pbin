@@ -1,23 +1,35 @@
 "use client";
 
-import { encryptText } from "@/utils/crypto";
-import { nanoid } from "nanoid";
+import { encryptText, generatePassword } from "@/utils/crypto";
+import { Box, Button, LoadingOverlay, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import { FormEvent, useId, useState } from "react";
+import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+type FormValues = {
+  content: string;
+};
+const defaultFormValues: FormValues = {
+  content: "",
+};
 
 export const NoteAdd = () => {
   const router = useRouter();
-  const contentId = useId();
 
-  const [content, setContent] = useState("");
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: defaultFormValues,
+  });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       setIsLoading(true);
-      const randomPassword = nanoid();
-      const encrypted = await encryptText(content, randomPassword);
+      const randomPassword = generatePassword();
+      const encrypted = await encryptText(data.content, randomPassword);
       const res = await fetch("/api/notes", {
         method: "POST",
         body: JSON.stringify({ content: encrypted }),
@@ -32,20 +44,32 @@ export const NoteAdd = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Add a new note</h1>
-      <label htmlFor={contentId}>Content</label>
-      <textarea
-        id={contentId}
-        autoComplete="off"
-        autoFocus
-        rows={30}
-        value={content}
-        required
-        minLength={1}
-        onChange={(e) => setContent(e.target.value)}
-      />
-      <input type="submit" aria-busy={isLoading} value="Submit" disabled={isLoading} required minLength={8} />
-    </form>
+    <Box pos="relative">
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <Title mb="1rem">Create a note</Title>
+        <Textarea
+          {...register("content", {
+            minLength: {
+              value: 1,
+              message: "Required",
+            },
+            required: {
+              value: true,
+              message: "Required",
+            },
+          })}
+          label="Content"
+          autoComplete="off"
+          autoFocus
+          rows={30}
+          required
+          error={errors.content?.message}
+        />
+        <Button mt="1rem" type="submit">
+          Submit
+        </Button>
+      </form>
+      <LoadingOverlay visible={isLoading} />
+    </Box>
   );
 };

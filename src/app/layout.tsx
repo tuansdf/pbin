@@ -1,5 +1,8 @@
+import { AppShell } from "@/components/layouts/app-shell";
+import { MantineProvider } from "@/lib/mantine-provider";
+import { ColorSchemeScript } from "@mantine/core";
 import React from "react";
-import "./globals.scss";
+import "@/app/styles";
 
 export default function RootLayout({
   children,
@@ -8,7 +11,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pbin</title>
+
+        <ColorSchemeScript />
+      </head>
+      <body>
+        <MantineProvider>
+          <AppShell>{children}</AppShell>
+        </MantineProvider>
+      </body>
     </html>
   );
 }

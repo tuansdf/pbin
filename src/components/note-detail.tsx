@@ -3,6 +3,7 @@
 import { ErrorMessage } from "@/components/error";
 import { Loading } from "@/components/loading";
 import { decryptText } from "@/utils/crypto";
+import { Textarea } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";
 
 type Props = {
@@ -38,5 +39,5 @@ export const NoteDetail = ({ item }: Props) => {
   if (isLoading) return <Loading isLoading={isLoading} />;
   if (isError) return <ErrorMessage />;
 
-  return <form>{decrypted ? <textarea value={decrypted} readOnly rows={30} /> : <ErrorMessage />}</form>;
+  return <form>{decrypted ? <Textarea value={decrypted} readOnly rows={30} /> : <ErrorMessage />}</form>;
 };

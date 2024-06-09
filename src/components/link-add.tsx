@@ -1,31 +1,46 @@
 "use client";
 
 import { usePasswordStore } from "@/hooks/use-password-store";
+import fclasses from "@/styles/form.module.scss";
 import { encryptText } from "@/utils/crypto";
+import { Box, Button, LoadingOverlay, PasswordInput, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import { FormEvent, useId, useState } from "react";
+import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+type FormValues = {
+  content: string;
+  password: string;
+};
+const defaultFormValues: FormValues = {
+  content: "",
+  password: "",
+};
 
 export const LinkAdd = () => {
   const router = useRouter();
-  const contentId = useId();
-  const passwordId = useId();
 
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: defaultFormValues,
+    reValidateMode: "onSubmit",
+  });
   const [passwords, setPasswords] = usePasswordStore();
-  const [content, setContent] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       setIsLoading(true);
-      const encrypted = await encryptText(content, password);
+      const encrypted = await encryptText(data.content, data.password);
       const res = await fetch("/api/links", {
         method: "POST",
         body: JSON.stringify({ content: encrypted }),
       });
       const body = (await res.json()) as { id: string | undefined };
-      setPasswords((prev) => prev?.add(password));
+      setPasswords((prev) => prev?.add(data.password));
       router.push(`/s/${body.id}`);
     } catch (e) {
       console.error(e);
@@ -35,29 +50,57 @@ export const LinkAdd = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Shorten a new link</h1>
-      <label htmlFor={contentId}>Link</label>
-      <textarea
-        id={contentId}
-        autoComplete="off"
-        autoFocus
-        rows={2}
-        value={content}
-        required
-        minLength={1}
-        onChange={(e) => setContent(e.target.value)}
-      />
-      <label htmlFor={passwordId}>Password</label>
-      <input
-        type="password"
-        value={password}
-        id={passwordId}
-        required
-        min={10}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <input type="submit" aria-busy={isLoading} value="Submit" disabled={isLoading} />
-    </form>
+    <Box pos="relative">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className={fclasses["form"]}>
+        <Title>Shorten a link</Title>
+        <Textarea
+          autoComplete="off"
+          autoFocus
+          rows={2}
+          required
+          label="Link"
+          {...register("content", {
+            minLength: {
+              value: 1,
+              message: "Required",
+            },
+            required: {
+              value: true,
+              message: "Required",
+            },
+            validate: (v) => {
+              try {
+                new URL(v);
+              } catch (e) {
+                return "Must be a valid link";
+              }
+            },
+          })}
+          error={errors.content?.message}
+        />
+        <PasswordInput
+          type="password"
+          autoComplete="current-password"
+          required
+          label="Password"
+          {...register("password", {
+            minLength: {
+              value: 10,
+              message: "Must have at least 10 characters",
+            },
+            required: {
+              value: true,
+              message: "Required",
+            },
+          })}
+          error={errors.password?.message}
+        />
+        <Button type="submit" w="max-content">
+          Submit
+        </Button>
+      </form>
+
+      <LoadingOverlay visible={isLoading} />
+    </Box>
   );
 };

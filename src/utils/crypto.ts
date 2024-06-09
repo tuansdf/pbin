@@ -15,8 +15,16 @@ export const decryptText = async (content: string, password: string): Promise<st
   } catch (e) {}
 };
 
-const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
-const nanoid = customAlphabet(alphabet, 21);
-export const generateId = (size: number = 21) => {
-  return nanoid(size);
+const DEFAULT_ID_SIZE = 21;
+const idAlphabet = "123456789abcdefghjkmnpqrstuvwxyz";
+const idNano = customAlphabet(idAlphabet, DEFAULT_ID_SIZE);
+export const generateId = (size: number = DEFAULT_ID_SIZE) => {
+  return idNano(size);
+};
+
+const DEFAULT_PASSWORD_SIZE = 32;
+const passwordAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz-";
+const passwordNano = customAlphabet(passwordAlphabet, DEFAULT_PASSWORD_SIZE);
+export const generatePassword = (size = DEFAULT_PASSWORD_SIZE) => {
+  return passwordNano(size);
 };

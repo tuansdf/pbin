@@ -1,3 +1,5 @@
+import { Box, Loader } from "@mantine/core";
+
 type Props = {
   isLoading?: boolean;
 };
@@ -5,5 +7,9 @@ type Props = {
 export const Loading = ({ isLoading = false }: Props) => {
   if (!isLoading) return null;
 
-  return <article aria-busy={isLoading} />;
+  return (
+    <Box p="1rem">
+      <Loader />
+    </Box>
+  );
 };
