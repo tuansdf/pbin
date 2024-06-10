@@ -26,7 +26,7 @@ export const LinkDetail = ({ item }: Props) => {
   const { passwords, addPassword } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [isPasswordOpen, { open: openPasswordModal, close: closePasswordModal }] = useDisclosure(false);
+  const [isPasswordOpen, { open: openPasswordModal }] = useDisclosure(false);
   const { handleSubmit, register } = useForm<FormValues>({
     defaultValues: defaultFormValues,
   });
@@ -80,7 +80,6 @@ export const LinkDetail = ({ item }: Props) => {
     try {
       setIsLoading(true);
       setIsError(false);
-      await new Promise((r) => setTimeout(r, 800));
       const decrypted = await decryptText(content, data.password);
       if (!decrypted) {
         setIsError(true);
@@ -98,11 +97,9 @@ export const LinkDetail = ({ item }: Props) => {
 
   return (
     <>
-      <Button onClick={openPasswordModal}>Open link</Button>
-
       {isError && !isPasswordOpen && <ErrorMessage mt="md" />}
 
-      <Modal opened={isPasswordOpen} onClose={closePasswordModal} title="Decrypt this link">
+      <Modal opened={isPasswordOpen} onClose={() => {}} title="Decrypt this link">
         <Box component="form" onSubmit={handleSubmit(handleFormSubmit)}>
           <PasswordInput
             label="Password"

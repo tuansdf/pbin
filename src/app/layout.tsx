@@ -1,4 +1,3 @@
-import { AppShell } from "@/components/layouts/app-shell";
 import { MantineProvider } from "@/lib/mantine-provider";
 import { ColorSchemeScript } from "@mantine/core";
 import React from "react";
@@ -19,9 +18,7 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider>
-          <AppShell>{children}</AppShell>
-        </MantineProvider>
+        <MantineProvider>{children}</MantineProvider>
       </body>
     </html>
   );
