@@ -11,7 +11,7 @@ type Props = PropsWithChildren;
 
 export const AppShell = ({ children }: Props) => {
   const pathname = usePathname();
-  const [opened, { toggle }] = useDisclosure(false);
+  const [opened, { toggle, close }] = useDisclosure(false);
 
   return (
     <AppShellM
@@ -29,8 +29,8 @@ export const AppShell = ({ children }: Props) => {
       </AppShellM.Header>
 
       <AppShellM.Navbar p="sm">
-        <NavLink href="/n/add" label="Create a note" component={Link} active={pathname === "/n/add"} />
-        <NavLink href="/s/add" label="Shorten a link" component={Link} active={pathname === "/s/add"} />
+        <NavLink href="/n/add" label="Create a note" component={Link} active={pathname === "/n/add"} onClick={close} />
+        <NavLink href="/s/add" label="Shorten a link" component={Link} active={pathname === "/s/add"} onClick={close} />
       </AppShellM.Navbar>
 
       <AppShellM.Main>{children}</AppShellM.Main>

@@ -8,7 +8,7 @@ export const Loading = ({ isLoading = false }: Props) => {
   if (!isLoading) return null;
 
   return (
-    <Box p="1rem">
+    <Box p="md">
       <Loader />
     </Box>
   );

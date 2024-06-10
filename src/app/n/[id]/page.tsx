@@ -9,7 +9,7 @@ export default async function DetailPage({ params }: { params: { id: string } })
 
   return (
     <>
-      <Button component={Link} href="/n/add" mb="1rem">
+      <Button component={Link} href="/n/add" mb="md">
         New paste
       </Button>
       {!!item ? <NoteDetail item={item} /> : <NotFound />}

@@ -76,7 +76,7 @@ export const LinkAdd = () => {
         onSubmit={handleSubmit(handleFormSubmit)}
         className={fclasses["form"]}
         maw="30rem"
-        mb="1rem"
+        mb="md"
       >
         <Title>Shorten a link</Title>
         <TextInput

@@ -46,7 +46,7 @@ export const NoteAdd = () => {
   return (
     <Box pos="relative">
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Title mb="1rem">Create a note</Title>
+        <Title mb="md">Create a note</Title>
         <Textarea
           {...register("content", {
             minLength: {
@@ -65,7 +65,7 @@ export const NoteAdd = () => {
           required
           error={errors.content?.message}
         />
-        <Button mt="1rem" type="submit">
+        <Button mt="md" type="submit">
           Submit
         </Button>
       </form>

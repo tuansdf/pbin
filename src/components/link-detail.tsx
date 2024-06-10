@@ -92,7 +92,7 @@ export const LinkDetail = ({ item }: Props) => {
     <>
       <Button onClick={openPasswordModal}>Open link</Button>
 
-      {isError && !isPasswordOpen && <ErrorMessage mt="1rem" />}
+      {isError && !isPasswordOpen && <ErrorMessage mt="md" />}
 
       <Modal opened={isPasswordOpen} onClose={closePasswordModal} title="Decrypt this link">
         <Box component="form" onSubmit={handleSubmit(handleFormSubmit)}>
@@ -110,10 +110,10 @@ export const LinkDetail = ({ item }: Props) => {
             })}
             required
           />
-          <Button type="submit" mt="0.5rem">
+          <Button type="submit" mt="xs">
             Submit
           </Button>
-          {isError && <ErrorMessage mt="0.5rem" />}
+          {isError && <ErrorMessage mt="xs" />}
         </Box>
       </Modal>
 
