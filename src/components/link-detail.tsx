@@ -3,7 +3,7 @@
 import { ErrorMessage } from "@/components/error";
 import { ScreenLoading } from "@/components/screen-loading";
 import { useDisclosure } from "@/hooks/use-disclosure";
-import { usePasswordStore } from "@/hooks/use-password-store";
+import { useAppStore } from "@/stores/app.store";
 import { decryptText } from "@/utils/crypto";
 import { Box, Button, Modal, PasswordInput } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";
@@ -23,7 +23,7 @@ const defaultFormValues: FormValues = {
 };
 
 export const LinkDetail = ({ item }: Props) => {
-  const [passwords] = usePasswordStore();
+  const { passwords } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isPasswordOpen, { open: openPasswordModal, close: closePasswordModal }] = useDisclosure(false);
@@ -44,6 +44,7 @@ export const LinkDetail = ({ item }: Props) => {
       setIsLoading(true);
       const promises: Promise<string | undefined>[] = [];
       passwords?.forEach((password) => {
+        if (!password) return;
         promises.push(decryptText(content, password));
       });
       const decrypteds = await Promise.allSettled(promises);

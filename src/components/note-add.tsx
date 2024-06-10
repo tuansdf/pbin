@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppStore } from "@/stores/app.store";
 import { encryptText, generatePassword } from "@/utils/crypto";
 import { Box, Button, LoadingOverlay, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
@@ -24,6 +25,7 @@ export const NoteAdd = () => {
     defaultValues: defaultFormValues,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { addNoteUrl } = useAppStore();
 
   const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
@@ -35,7 +37,9 @@ export const NoteAdd = () => {
         body: JSON.stringify({ content: encrypted }),
       });
       const body = (await res.json()) as { id: string | undefined };
-      router.push(`/n/${body.id}#${randomPassword}`);
+      const link = `/n/${body.id}#${randomPassword}`;
+      addNoteUrl(window.location.origin + link);
+      router.push(link);
     } catch (e) {
       console.error(e);
     } finally {

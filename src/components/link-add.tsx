@@ -1,7 +1,7 @@
 "use client";
 
 import { ErrorMessage } from "@/components/error";
-import { usePasswordStore } from "@/hooks/use-password-store";
+import { useAppStore } from "@/stores/app.store";
 import fclasses from "@/styles/form.module.scss";
 import { encryptText } from "@/utils/crypto";
 import { Button, Card, CopyButton, LoadingOverlay, PasswordInput, TextInput, Title } from "@mantine/core";
@@ -28,7 +28,7 @@ export const LinkAdd = () => {
     defaultValues: defaultFormValues,
     reValidateMode: "onSubmit",
   });
-  const [passwords, setPasswords] = usePasswordStore();
+  const { addPassword, addShortUrl } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [shortLink, setShortLink] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -47,8 +47,9 @@ export const LinkAdd = () => {
       }
       const body = (await res.json()) as { id: string | undefined };
       reset({ password: "" });
-      setPasswords((prev) => prev?.add(data.password));
+      addPassword(data.password);
       const shortLink = window.location.origin + `/s/${body.id}`;
+      addShortUrl(shortLink);
       setShortLink(shortLink);
     } catch (e) {
       setErrorMessage("Something Went Wrong");
