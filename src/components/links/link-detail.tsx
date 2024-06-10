@@ -23,7 +23,7 @@ const defaultFormValues: FormValues = {
 };
 
 export const LinkDetail = ({ item }: Props) => {
-  const { passwords } = useAppStore();
+  const { passwords, addPassword } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isPasswordOpen, { open: openPasswordModal, close: closePasswordModal }] = useDisclosure(false);
@@ -34,14 +34,19 @@ export const LinkDetail = ({ item }: Props) => {
   const decryptContent = useCallback(async () => {
     const content = item.content;
     if (!content) {
-      return setIsError(true);
+      setIsError(true);
+      setIsLoading(false);
+      return;
     }
     if (!passwords?.size) {
-      return openPasswordModal();
+      openPasswordModal();
+      setIsLoading(false);
+      return;
     }
     try {
       setIsError(false);
       setIsLoading(true);
+      await new Promise((r) => setTimeout(r, 800));
       const promises: Promise<string | undefined>[] = [];
       passwords?.forEach((password) => {
         if (!password) return;
@@ -75,10 +80,12 @@ export const LinkDetail = ({ item }: Props) => {
     try {
       setIsLoading(true);
       setIsError(false);
+      await new Promise((r) => setTimeout(r, 800));
       const decrypted = await decryptText(content, data.password);
       if (!decrypted) {
         setIsError(true);
       } else {
+        addPassword(data.password);
         const url = new URL(decrypted);
         window.location.href = url.toString();
       }
@@ -118,7 +125,7 @@ export const LinkDetail = ({ item }: Props) => {
         </Box>
       </Modal>
 
-      <ScreenLoading isLoading={isLoading} />
+      {isLoading && <ScreenLoading isLoading={isLoading} />}
     </>
   );
 };

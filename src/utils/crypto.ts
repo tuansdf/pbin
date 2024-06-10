@@ -1,17 +1,16 @@
-import AES from "crypto-js/aes";
-import utf8enc from "crypto-js/enc-utf8";
+import CryptoJS from "crypto-js";
 import { customAlphabet } from "nanoid";
 
 export const encryptText = async (content: string, password: string): Promise<string | undefined> => {
   try {
-    return AES.encrypt(content, password).toString();
+    return CryptoJS.AES.encrypt(content, password).toString();
   } catch (e) {}
 };
 
 export const decryptText = async (content: string, password: string): Promise<string | undefined> => {
   try {
-    const bytes = AES.decrypt(content, password);
-    return bytes.toString(utf8enc);
+    const bytes = CryptoJS.AES.decrypt(content, password);
+    return bytes.toString(CryptoJS.enc.Utf8);
   } catch (e) {}
 };
 
@@ -59,4 +58,19 @@ export const generateRandomAndHandleCollision = async ({
     retryCount++;
   }
   return random;
+};
+
+export const hashPassword = async (password: string) => {
+  const salt = CryptoJS.lib.WordArray.random(128 / 8);
+  const hashed = CryptoJS.PBKDF2(password, salt, {
+    keySize: 256 / 32,
+    iterations: 600000,
+    hasher: CryptoJS.algo.SHA256,
+  });
+
+  // Convert salt and hash to strings for transmission
+  const saltString = CryptoJS.enc.Hex.stringify(salt);
+  const hashString = CryptoJS.enc.Hex.stringify(hashed);
+
+  return { salt: saltString, hash: hashString };
 };
