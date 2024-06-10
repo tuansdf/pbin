@@ -1,4 +1,4 @@
-import { LinkAdd } from "@/components/link-add";
+import { LinkAdd } from "@/components/links/link-add";
 
 export const metadata = {
   title: "Shorten a link",

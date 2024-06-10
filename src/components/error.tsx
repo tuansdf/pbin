@@ -1,3 +1,5 @@
+"use client";
+
 import { Alert, AlertProps } from "@mantine/core";
 
 type Props = {

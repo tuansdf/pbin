@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, Loader } from "@mantine/core";
 
 type Props = {

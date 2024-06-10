@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, LoadingOverlay } from "@mantine/core";
 import classes from "./screen-loading.module.scss";
 

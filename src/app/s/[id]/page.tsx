@@ -1,4 +1,4 @@
-import { LinkDetail } from "@/components/link-detail";
+import { LinkDetail } from "@/components/links/link-detail";
 import { NotFound } from "@/components/not-found";
 import { vaultRepository } from "@/databases/repositories/vault.repository";
 
