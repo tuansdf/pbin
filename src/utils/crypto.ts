@@ -23,7 +23,7 @@ export const generateId = (size: number = DEFAULT_ID_SIZE) => {
 };
 
 const DEFAULT_PASSWORD_SIZE = 48;
-const passwordAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz-";
+const passwordAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
 const passwordNano = customAlphabet(passwordAlphabet, DEFAULT_PASSWORD_SIZE);
 export const generatePassword = (size = DEFAULT_PASSWORD_SIZE) => {
   return passwordNano(size);
