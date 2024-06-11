@@ -1,13 +1,13 @@
 import { deleteVault, getVaultConfigs } from "@/client/api/vault.api";
 import { ErrorMessage } from "@/client/components/error";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
-import { SearchObject } from "@/shared/types/common.type";
 import { hashPassword } from "@/shared/utils/crypto";
 import { toObject } from "@/shared/utils/query-string";
 import { Box, Button, LoadingOverlay, Modal, PasswordInput } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import useSWR from "swr";
 
 type Props = {
   id: string;
@@ -40,7 +40,6 @@ const VaultDeleteModalContent = ({ id }: Props) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [passwordConfig, setPasswordConfig] = useState<SearchObject>();
   const {
     handleSubmit,
     register,
@@ -48,23 +47,11 @@ const VaultDeleteModalContent = ({ id }: Props) => {
   } = useForm<FormValues>({
     defaultValues: defaultFormValues,
   });
+  const configsQuery = useSWR(`vaults.${id}.configs`, () => getVaultConfigs(id));
 
-  const getConfig = async () => {
-    try {
-      setIsError(false);
-      setIsLoading(true);
-      const res = await getVaultConfigs(id);
-      setPasswordConfig(toObject(res.passwordConfig));
-    } catch (e) {
-      setIsError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getConfig();
-  }, [id]);
+  const passwordConfig = useMemo(() => {
+    return toObject(configsQuery.data?.passwordConfig || "");
+  }, [configsQuery.data]);
 
   const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
@@ -112,7 +99,7 @@ const VaultDeleteModalContent = ({ id }: Props) => {
 
       {isError && <ErrorMessage mt="md" />}
 
-      <LoadingOverlay visible={isLoading} />
+      <LoadingOverlay visible={isLoading || configsQuery.isLoading} />
     </Box>
   );
 };
