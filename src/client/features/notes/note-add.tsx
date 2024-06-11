@@ -48,8 +48,8 @@ export const NoteAdd = () => {
         }),
       });
       if (res.ok) {
-        const body = (await res.json()) as { id: string | undefined };
-        const link = `/n/${body.id}#${randomPassword}`;
+        const body = (await res.json()) as { publicId: string | undefined };
+        const link = `/n/${body.publicId}#${randomPassword}`;
         addNoteUrl(window.location.origin + link);
         router.push(link);
       }

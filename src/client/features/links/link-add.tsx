@@ -45,10 +45,10 @@ export const LinkAdd = () => {
       if (!res.ok) {
         return setErrorMessage("Something Went Wrong");
       }
-      const body = (await res.json()) as { id: string | undefined };
+      const body = (await res.json()) as { publicId: string | undefined };
       reset({ password: "" });
       addPassword(data.password);
-      const shortLink = window.location.origin + `/s/${body.id}`;
+      const shortLink = window.location.origin + `/s/${body.publicId}`;
       addShortUrl(shortLink);
       setShortLink(shortLink);
     } catch (e) {

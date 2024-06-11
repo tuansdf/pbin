@@ -1,25 +1,14 @@
-import { vaultRepository } from "@/server/databases/repositories/vault.repository";
-import { handleVaultPublicIdCollision } from "@/server/databases/utils/vault.util";
-import { generateId } from "@/shared/utils/crypto";
-import { z } from "zod";
-
-const createSchema = z.object({
-  content: z.string().min(1),
-});
-
-const DEFAULT_ID_SIZE = 8;
+import { createLinkSchema } from "@/server/features/vault/vault.schema";
+import { vaultService } from "@/server/features/vault/vault.service";
+import { exceptionUtils } from "@/shared/exceptions/exception.util";
 
 export const POST = async (request: Request) => {
   try {
-    const parseResult = await createSchema.safeParseAsync(await request.json());
-    if (!parseResult.success) {
-      return Response.json({ message: "Missing link" }, { status: 400 });
-    }
-    const content = parseResult.data.content || "";
-    const publicId = await handleVaultPublicIdCollision(() => generateId(DEFAULT_ID_SIZE));
-    await vaultRepository.create({ content, publicId });
-    return Response.json({ id: publicId });
+    const data = await createLinkSchema.parseAsync(await request.json());
+    const result = await vaultService.createLink(data);
+    return Response.json(result);
   } catch (e) {
-    return Response.json({ message: "Something Went Wrong" }, { status: 500 });
+    const [status, response] = exceptionUtils.getResponse(e as Error);
+    return Response.json(response, { status });
   }
 };

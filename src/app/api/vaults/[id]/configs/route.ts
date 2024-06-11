@@ -1,18 +1,13 @@
-import { vaultRepository } from "@/server/databases/repositories/vault.repository";
+import { vaultService } from "@/server/features/vault/vault.service";
+import { exceptionUtils } from "@/shared/exceptions/exception.util";
 
 export const GET = async (request: Request, { params }: { params: { id: string } }) => {
   try {
     const id = params.id;
-    if (!id) {
-      throw new Error();
-    }
-    const vault = await vaultRepository.getTopByPublicId(id);
-    console.log({ vault });
-    if (!vault) {
-      throw new Error();
-    }
-    return Response.json({ passwordConfig: vault.passwordConfig });
+    const result = await vaultService.getTopByPublicId(id);
+    return Response.json({ passwordConfig: result.passwordConfig });
   } catch (e) {
-    return Response.json({ message: "Something Went Wrong" }, { status: 500 });
+    const [status, response] = exceptionUtils.getResponse(e as Error);
+    return Response.json(response, { status });
   }
 };

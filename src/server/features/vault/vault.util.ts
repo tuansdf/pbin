@@ -1,4 +1,4 @@
-import { vaultRepository } from "@/server/databases/repositories/vault.repository";
+import { vaultRepository } from "@/server/features/vault/vault.repository";
 import { generateRandomAndHandleCollision } from "@/shared/utils/crypto";
 
 export const handleVaultPublicIdCollision = async (randomFn: () => string) => {
