@@ -1,4 +1,4 @@
-import { vaultRepository } from "@/databases/repositories/vault.repository";
+import { vaultRepository } from "@/server/databases/repositories/vault.repository";
 
 export const GET = async (request: Request, { params }: { params: { id: string } }) => {
   try {

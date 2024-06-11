@@ -1,9 +1,9 @@
 "use client";
 
-import { ErrorMessage } from "@/components/error";
-import { Loading } from "@/components/loading";
-import { VaultDeleteModal } from "@/components/vaults/vault-delete-modal";
-import { decryptText } from "@/utils/crypto";
+import { ErrorMessage } from "@/client/components/error";
+import { Loading } from "@/client/components/loading";
+import { VaultDeleteModal } from "@/client/features/vaults/vault-delete-modal";
+import { decryptText } from "@/shared/utils/crypto";
 import { Button, Group, Textarea } from "@mantine/core";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";

@@ -1,4 +1,4 @@
-import { LinkHistory } from "@/components/links/link-history";
+import { LinkHistory } from "@/client/features/links/link-history";
 import { Title } from "@mantine/core";
 
 export const metadata = {

@@ -1,5 +1,5 @@
-import { db } from "@/databases/db";
-import { VaultTable } from "@/databases/entities/vault.entity";
+import { db } from "@/server/databases/db";
+import { VaultTable } from "@/server/databases/entities/vault.entity";
 import { count, eq } from "drizzle-orm";
 
 class VaultRepository {

@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorMessage } from "@/components/error";
+import { ErrorMessage } from "@/client/components/error";
 
 export const NotFound = () => {
   return <ErrorMessage msg="Not Found" />;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppStore } from "@/stores/app.store";
+import { useAppStore } from "@/client/stores/app.store";
 import { Alert, List } from "@mantine/core";
 import { useMemo } from "react";
 

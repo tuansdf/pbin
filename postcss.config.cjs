@@ -10,5 +10,6 @@ module.exports = {
         "mantine-breakpoint-xl": "88em",
       },
     },
+    "postcss-preset-env": {},
   },
 };

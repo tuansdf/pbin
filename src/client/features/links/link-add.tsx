@@ -1,13 +1,13 @@
 "use client";
 
-import { ErrorMessage } from "@/components/error";
-import { useAppStore } from "@/stores/app.store";
-import fclasses from "@/styles/form.module.scss";
-import { encryptText } from "@/utils/crypto";
+import { ErrorMessage } from "@/client/components/error";
+import classes from "@/client/features/links/link-add.module.scss";
+import { useAppStore } from "@/client/stores/app.store";
+import fclasses from "@/client/styles/form.module.scss";
+import { encryptText } from "@/shared/utils/crypto";
 import { Button, Card, CopyButton, LoadingOverlay, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import classes from "./link-add.module.scss";
 
 type FormValues = {
   content: string;

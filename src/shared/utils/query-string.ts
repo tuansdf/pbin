@@ -1,4 +1,4 @@
-import { SearchObject } from "@/types/common.type";
+import { SearchObject } from "@/shared/types/common.type";
 
 export const toObject = (text: string): SearchObject => {
   const params = new URLSearchParams(text);

@@ -1,6 +1,6 @@
-import { vaultRepository } from "@/databases/repositories/vault.repository";
-import { handleVaultPublicIdCollision } from "@/databases/utils/vault.util";
-import { generateId } from "@/utils/crypto";
+import { vaultRepository } from "@/server/databases/repositories/vault.repository";
+import { handleVaultPublicIdCollision } from "@/server/databases/utils/vault.util";
+import { generateId } from "@/shared/utils/crypto";
 import { z } from "zod";
 
 const createSchema = z

@@ -1,8 +1,8 @@
 "use client";
 
-import { useAppStore } from "@/stores/app.store";
-import { encryptText, generatePassword, hashPassword } from "@/utils/crypto";
-import { toString } from "@/utils/query-string";
+import { useAppStore } from "@/client/stores/app.store";
+import { encryptText, generatePassword, hashPassword } from "@/shared/utils/crypto";
+import { toString } from "@/shared/utils/query-string";
 import { Box, Button, LoadingOverlay, PasswordInput, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

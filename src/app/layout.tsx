@@ -1,4 +1,4 @@
-import { MantineProvider } from "@/lib/mantine-provider";
+import { MantineProvider } from "@/client/lib/mantine-provider";
 import { ColorSchemeScript } from "@mantine/core";
 import React from "react";
 import "@/app/styles";

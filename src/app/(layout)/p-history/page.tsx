@@ -1,4 +1,4 @@
-import { PasswordHistory } from "@/components/passwords/password-history";
+import { PasswordHistory } from "@/client/features/passwords/password-history";
 import { Title } from "@mantine/core";
 
 export const metadata = {

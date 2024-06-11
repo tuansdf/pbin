@@ -1,10 +1,10 @@
 "use client";
 
-import { ErrorMessage } from "@/components/error";
-import { ScreenLoading } from "@/components/screen-loading";
-import { useDisclosure } from "@/hooks/use-disclosure";
-import { useAppStore } from "@/stores/app.store";
-import { decryptText } from "@/utils/crypto";
+import { ErrorMessage } from "@/client/components/error";
+import { ScreenLoading } from "@/client/components/screen-loading";
+import { useDisclosure } from "@/client/hooks/use-disclosure";
+import { useAppStore } from "@/client/stores/app.store";
+import { decryptText } from "@/shared/utils/crypto";
 import { Box, Button, Modal, PasswordInput } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";

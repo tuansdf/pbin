@@ -1,6 +1,6 @@
 "use client";
 
-import { useDisclosure } from "@/hooks/use-disclosure";
+import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { AppShell as AppShellM, Burger, NavLink } from "@mantine/core";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

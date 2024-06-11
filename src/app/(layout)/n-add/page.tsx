@@ -1,4 +1,4 @@
-import { NoteAdd } from "@/components/notes/note-add";
+import { NoteAdd } from "@/client/features/notes/note-add";
 
 export const metadata = {
   title: "Create a note",

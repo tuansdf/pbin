@@ -1,8 +1,8 @@
-import { ErrorMessage } from "@/components/error";
-import { useDisclosure } from "@/hooks/use-disclosure";
-import { SearchObject } from "@/types/common.type";
-import { hashPassword } from "@/utils/crypto";
-import { toObject } from "@/utils/query-string";
+import { ErrorMessage } from "@/client/components/error";
+import { useDisclosure } from "@/client/hooks/use-disclosure";
+import { SearchObject } from "@/shared/types/common.type";
+import { hashPassword } from "@/shared/utils/crypto";
+import { toObject } from "@/shared/utils/query-string";
 import { Box, Button, LoadingOverlay, Modal, PasswordInput } from "@mantine/core";
 import axios from "axios";
 import { useRouter } from "next/navigation";

@@ -1,4 +1,4 @@
-import { NoteHistory } from "@/components/notes/note-history";
+import { NoteHistory } from "@/client/features/notes/note-history";
 import { Title } from "@mantine/core";
 
 export const metadata = {
