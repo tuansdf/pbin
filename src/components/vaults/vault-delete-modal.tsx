@@ -100,6 +100,7 @@ const VaultDeleteModalContent = ({ id }: Props) => {
     <Box pos="relative">
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <PasswordInput
+          autoFocus
           label="Password"
           mb="md"
           autoComplete="current-password"

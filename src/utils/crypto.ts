@@ -65,11 +65,10 @@ export const hashPassword = async (
   config: { keySize?: string | number; saltSize?: string | number; iterations?: string | number; salt?: string },
 ) => {
   try {
-    console.log({ start: config });
     let keySize = Number(config.keySize) || 128 / 8;
     let saltSize = Number(config.saltSize) || 256 / 32;
     let iterations = Number(config.iterations) || 1_000;
-    let salt = config.salt ? CryptoJS.enc.Hex.parse(config.salt) : CryptoJS.lib.WordArray.random(saltSize);
+    let salt = config.salt || CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(saltSize));
 
     const hashed: CryptoJS.lib.WordArray = await new Promise((r) =>
       r(
@@ -82,18 +81,7 @@ export const hashPassword = async (
     );
 
     // Convert salt and hash to strings for transmission
-    const saltString = CryptoJS.enc.Hex.stringify(salt);
     const hashString = CryptoJS.enc.Hex.stringify(hashed);
-
-    console.log({
-      hash: hashString,
-      config: {
-        keySize: keySize,
-        iterations: iterations,
-        saltSize: saltSize,
-        salt: saltString,
-      },
-    });
 
     return {
       error: false,
@@ -102,7 +90,7 @@ export const hashPassword = async (
         keySize: keySize,
         iterations: iterations,
         saltSize: saltSize,
-        salt: saltString,
+        salt,
       },
     };
   } catch (e) {

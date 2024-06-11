@@ -78,7 +78,7 @@ export const NoteAdd = () => {
           label="Content"
           autoComplete="off"
           autoFocus
-          rows={30}
+          rows={24}
           required
           error={errors.content?.message}
         />
