@@ -60,17 +60,55 @@ export const generateRandomAndHandleCollision = async ({
   return random;
 };
 
-export const hashPassword = async (password: string) => {
-  const salt = CryptoJS.lib.WordArray.random(128 / 8);
-  const hashed = CryptoJS.PBKDF2(password, salt, {
-    keySize: 256 / 32,
-    iterations: 600000,
-    hasher: CryptoJS.algo.SHA256,
-  });
+export const hashPassword = async (
+  password: string,
+  config: { keySize?: string | number; saltSize?: string | number; iterations?: string | number; salt?: string },
+) => {
+  try {
+    console.log({ start: config });
+    let keySize = Number(config.keySize) || 128 / 8;
+    let saltSize = Number(config.saltSize) || 256 / 32;
+    let iterations = Number(config.iterations) || 1_000;
+    let salt = config.salt ? CryptoJS.enc.Hex.parse(config.salt) : CryptoJS.lib.WordArray.random(saltSize);
 
-  // Convert salt and hash to strings for transmission
-  const saltString = CryptoJS.enc.Hex.stringify(salt);
-  const hashString = CryptoJS.enc.Hex.stringify(hashed);
+    const hashed: CryptoJS.lib.WordArray = await new Promise((r) =>
+      r(
+        CryptoJS.PBKDF2(password, salt, {
+          keySize: keySize,
+          iterations: iterations,
+          hasher: CryptoJS.algo.SHA256,
+        }),
+      ),
+    );
 
-  return { salt: saltString, hash: hashString };
+    // Convert salt and hash to strings for transmission
+    const saltString = CryptoJS.enc.Hex.stringify(salt);
+    const hashString = CryptoJS.enc.Hex.stringify(hashed);
+
+    console.log({
+      hash: hashString,
+      config: {
+        keySize: keySize,
+        iterations: iterations,
+        saltSize: saltSize,
+        salt: saltString,
+      },
+    });
+
+    return {
+      error: false,
+      hash: hashString,
+      config: {
+        keySize: keySize,
+        iterations: iterations,
+        saltSize: saltSize,
+        salt: saltString,
+      },
+    };
+  } catch (e) {
+    return {
+      error: true,
+      hash: "",
+    };
+  }
 };

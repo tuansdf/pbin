@@ -7,7 +7,6 @@ export const VaultTable = sqliteTable("vault", {
     .unique()
     .$defaultFn(() => generateId()),
   content: text("content"),
-  // password: text("password"),
-  // passwordSalt: text("password_salt"),
-  // passwordConfig: text("password_config"),
+  password: text("password"),
+  passwordConfig: text("password_config"),
 });
