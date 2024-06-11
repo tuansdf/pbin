@@ -6,6 +6,18 @@ export type CreateLinkRequest = {
   content: string;
 };
 
+export type CreateLinkResponse = {
+  publicId?: string;
+};
+
+export type CreateNoteResponse = {
+  publicId?: string;
+};
+
+export type GetVaultConfigsResponse = {
+  passwordConfig: string;
+};
+
 export type CreateNoteRequest = {
   content: string;
   password?: string;

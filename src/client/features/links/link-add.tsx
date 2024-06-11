@@ -1,5 +1,6 @@
 "use client";
 
+import { createLink } from "@/client/api/vault.api";
 import { ErrorMessage } from "@/client/components/error";
 import classes from "@/client/features/links/link-add.module.scss";
 import { useAppStore } from "@/client/stores/app.store";
@@ -38,14 +39,7 @@ export const LinkAdd = () => {
       setErrorMessage("");
       setIsLoading(true);
       const encrypted = await encryptText(data.content, data.password);
-      const res = await fetch("/api/links", {
-        method: "POST",
-        body: JSON.stringify({ content: encrypted }),
-      });
-      if (!res.ok) {
-        return setErrorMessage("Something Went Wrong");
-      }
-      const body = (await res.json()) as { publicId: string | undefined };
+      const body = await createLink({ content: encrypted || "" });
       reset({ password: "" });
       addPassword(data.password);
       const shortLink = window.location.origin + `/s/${body.publicId}`;

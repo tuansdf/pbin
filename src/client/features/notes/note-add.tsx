@@ -1,5 +1,6 @@
 "use client";
 
+import { createNote } from "@/client/api/vault.api";
 import { useAppStore } from "@/client/stores/app.store";
 import { encryptText, generatePassword, hashPassword } from "@/shared/utils/crypto";
 import { toString } from "@/shared/utils/query-string";
@@ -39,20 +40,14 @@ export const NoteAdd = () => {
       if (!!data.password) {
         password = await hashPassword(data.password, {});
       }
-      const res = await fetch("/api/notes", {
-        method: "POST",
-        body: JSON.stringify({
-          content: encrypted,
-          password: password?.hash,
-          passwordConfig: toString(password?.config || {}),
-        }),
+      const body = await createNote({
+        content: encrypted || "",
+        password: password?.hash,
+        passwordConfig: toString(password?.config || {}),
       });
-      if (res.ok) {
-        const body = (await res.json()) as { publicId: string | undefined };
-        const link = `/n/${body.publicId}#${randomPassword}`;
-        addNoteUrl(window.location.origin + link);
-        router.push(link);
-      }
+      const link = `/n/${body.publicId}#${randomPassword}`;
+      addNoteUrl(window.location.origin + link);
+      router.push(link);
     } catch (e) {
       console.error(e);
     } finally {

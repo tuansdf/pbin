@@ -1,10 +1,10 @@
+import { deleteVault, getVaultConfigs } from "@/client/api/vault.api";
 import { ErrorMessage } from "@/client/components/error";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { SearchObject } from "@/shared/types/common.type";
 import { hashPassword } from "@/shared/utils/crypto";
 import { toObject } from "@/shared/utils/query-string";
 import { Box, Button, LoadingOverlay, Modal, PasswordInput } from "@mantine/core";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -27,16 +27,6 @@ export const VaultDeleteModal = ({ id }: Props) => {
       </Modal>
     </>
   );
-};
-
-const getPasswordConfig = async (id: string) => {
-  const res = await axios.get<{ passwordConfig: string }>(`/api/vaults/${id}/configs`);
-  return res.data;
-};
-
-const deleteVault = async (id: string, password: string) => {
-  const res = await axios.post<null>(`/api/vaults/${id}/delete`, { password });
-  return res.data;
 };
 
 type FormValues = {
@@ -63,7 +53,7 @@ const VaultDeleteModalContent = ({ id }: Props) => {
     try {
       setIsError(false);
       setIsLoading(true);
-      const res = await getPasswordConfig(id);
+      const res = await getVaultConfigs(id);
       setPasswordConfig(toObject(res.passwordConfig));
     } catch (e) {
       setIsError(true);
@@ -87,7 +77,7 @@ const VaultDeleteModalContent = ({ id }: Props) => {
       if (password.error) {
         throw new Error();
       }
-      await deleteVault(id, password.hash);
+      await deleteVault(id, { password: password.hash });
       router.push("/n-add");
     } catch (e) {
       setIsError(true);
