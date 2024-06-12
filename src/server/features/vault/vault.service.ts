@@ -18,13 +18,21 @@ class VaultService {
       publicId,
       content: data.content,
       password: data.password,
-      passwordConfig: data.passwordConfig,
+      configs: JSON.stringify(data.configs),
     });
     return { publicId };
   };
 
   public getTopByPublicId = async (id: string) => {
     const vault = await vaultRepository.getTopByPublicId(id);
+    if (!vault) {
+      throw new CustomException();
+    }
+    return vault;
+  };
+
+  public getTopByPublicIdInternal = async (id: string) => {
+    const vault = await vaultRepository.getTopByPublicIdInternal(id);
     if (!vault) {
       throw new CustomException();
     }

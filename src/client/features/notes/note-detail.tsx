@@ -1,12 +1,12 @@
 "use client";
 
 import { ErrorMessage } from "@/client/components/error";
-import { Loading } from "@/client/components/loading";
+import { ScreenLoading } from "@/client/components/screen-loading";
 import { VaultDeleteModal } from "@/client/features/vaults/vault-delete-modal";
 import { decryptText } from "@/shared/utils/crypto";
 import { Button, Group, Textarea } from "@mantine/core";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 type Props = {
@@ -16,7 +16,6 @@ type Props = {
 };
 
 export const NoteDetail = ({ item }: Props) => {
-  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [decrypted, setDecrypted] = useState<string | undefined>();
@@ -41,7 +40,7 @@ export const NoteDetail = ({ item }: Props) => {
     decryptContent();
   }, [decryptContent]);
 
-  if (isLoading) return <Loading isLoading={isLoading} />;
+  if (isLoading) return <ScreenLoading isLoading={isLoading} />;
   if (isError) return <ErrorMessage />;
 
   return (

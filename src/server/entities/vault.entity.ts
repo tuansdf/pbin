@@ -8,5 +8,5 @@ export const VaultTable = sqliteTable("vault", {
     .$defaultFn(() => generateId()),
   content: text("content"),
   password: text("password"),
-  passwordConfig: text("password_config"),
+  configs: text("configs"),
 });

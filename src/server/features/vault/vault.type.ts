@@ -1,6 +1,7 @@
 import { VaultTable } from "@/server/entities/vault.entity";
 
-export type Note = typeof VaultTable.$inferSelect;
+export type Vault = typeof VaultTable.$inferSelect;
+export type VaultCreate = typeof VaultTable.$inferInsert;
 
 export type CreateLinkRequest = {
   content: string;
@@ -15,13 +16,21 @@ export type CreateNoteResponse = {
 };
 
 export type GetVaultConfigsResponse = {
-  passwordConfig: string;
+  configs: VaultConfigs;
+};
+
+export type VaultConfigs = {
+  password: {
+    keySize: number;
+    iterations: number;
+    salt: string;
+  };
 };
 
 export type CreateNoteRequest = {
   content: string;
   password?: string;
-  passwordConfig?: string;
+  configs?: VaultConfigs;
 };
 
 export type DeleteVaultRequest = {

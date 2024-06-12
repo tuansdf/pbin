@@ -1,5 +1,6 @@
 import { db } from "@/server/databases/db";
 import { VaultTable } from "@/server/entities/vault.entity";
+import { VaultCreate } from "@/server/features/vault/vault.type";
 import { count, eq } from "drizzle-orm";
 
 class VaultRepository {
@@ -13,13 +14,10 @@ class VaultRepository {
     return result > 0;
   };
 
-  public getTopByPublicId = async (
-    publicId: string,
-  ): Promise<{ content: string | null; passwordConfig: string | null }> => {
+  public getTopByPublicId = async (publicId: string) => {
     const result = await db
       .select({
         content: VaultTable.content,
-        passwordConfig: VaultTable.passwordConfig,
       })
       .from(VaultTable)
       .where(eq(VaultTable.publicId, publicId))
@@ -36,21 +34,8 @@ class VaultRepository {
     return result?.[0];
   };
 
-  public create = async ({
-    content,
-    publicId,
-    password,
-    passwordConfig,
-  }: {
-    content: string;
-    publicId?: string;
-    password?: string;
-    passwordConfig?: string;
-  }): Promise<{ publicId: string | null }> => {
-    const result = await db
-      .insert(VaultTable)
-      .values({ content, publicId, password, passwordConfig })
-      .returning({ publicId: VaultTable.publicId });
+  public create = async (data: VaultCreate): Promise<{ publicId: string | null }> => {
+    const result = await db.insert(VaultTable).values(data).returning({ publicId: VaultTable.publicId });
     return result?.[0];
   };
 }

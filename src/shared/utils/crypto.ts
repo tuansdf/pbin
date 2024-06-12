@@ -1,3 +1,4 @@
+import { VaultConfigs } from "@/server/features/vault/vault.type";
 import CryptoJS from "crypto-js";
 import { customAlphabet } from "nanoid";
 
@@ -22,7 +23,7 @@ export const generateId = (size: number = DEFAULT_ID_SIZE) => {
 };
 
 const DEFAULT_PASSWORD_SIZE = 48;
-const passwordAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
+const passwordAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const passwordNano = customAlphabet(passwordAlphabet, DEFAULT_PASSWORD_SIZE);
 export const generatePassword = (size = DEFAULT_PASSWORD_SIZE) => {
   return passwordNano(size);
@@ -60,15 +61,21 @@ export const generateRandomAndHandleCollision = async ({
   return random;
 };
 
+export const generatePasswordConfigs = (config?: VaultConfigs["password"]): VaultConfigs["password"] => {
+  let keySize = Number(config?.keySize) || 128 / 8;
+  let saltSize = 256 / 32;
+  let iterations = Number(config?.iterations) || 600_000;
+  let salt = config?.salt || CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(saltSize));
+  return { keySize, iterations, salt };
+};
+
 export const hashPassword = async (
   password: string,
-  config: { keySize?: string | number; saltSize?: string | number; iterations?: string | number; salt?: string },
-) => {
+  configs?: VaultConfigs["password"],
+): Promise<{ configs: VaultConfigs["password"]; error: false; hash: string } | { error: true }> => {
   try {
-    let keySize = Number(config.keySize) || 128 / 8;
-    let saltSize = Number(config.saltSize) || 256 / 32;
-    let iterations = Number(config.iterations) || 1_000;
-    let salt = config.salt || CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(saltSize));
+    await new Promise((r) => setTimeout(r, 1000));
+    const { keySize, iterations, salt } = generatePasswordConfigs(configs);
 
     const hashed: CryptoJS.lib.WordArray = await new Promise((r) =>
       r(
@@ -86,17 +93,11 @@ export const hashPassword = async (
     return {
       error: false,
       hash: hashString,
-      config: {
-        keySize: keySize,
-        iterations: iterations,
-        saltSize: saltSize,
-        salt,
-      },
+      configs: { keySize, iterations, salt },
     };
   } catch (e) {
     return {
       error: true,
-      hash: "",
     };
   }
 };

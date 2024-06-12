@@ -1,10 +1,10 @@
 "use client";
 
 import { createNote } from "@/client/api/vault.api";
+import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
 import { encryptText, generatePassword, hashPassword } from "@/shared/utils/crypto";
-import { toString } from "@/shared/utils/query-string";
-import { Box, Button, LoadingOverlay, PasswordInput, Textarea, Title } from "@mantine/core";
+import { Box, Button, PasswordInput, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -38,12 +38,13 @@ export const NoteAdd = () => {
       const encrypted = await encryptText(data.content, randomPassword);
       let password: undefined | Awaited<ReturnType<typeof hashPassword>> = undefined;
       if (!!data.password) {
-        password = await hashPassword(data.password, {});
+        password = await hashPassword(data.password);
       }
+      if (!password || password?.error) throw new Error();
       const body = await createNote({
         content: encrypted || "",
-        password: password?.hash,
-        passwordConfig: toString(password?.config || {}),
+        password: password.hash,
+        configs: { password: password.configs },
       });
       const link = `/n/${body.publicId}#${randomPassword}`;
       addNoteUrl(window.location.origin + link);
@@ -56,45 +57,47 @@ export const NoteAdd = () => {
   };
 
   return (
-    <Box pos="relative">
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Title mb="md">Create a note</Title>
-        <Textarea
-          {...register("content", {
-            minLength: {
-              value: 1,
-              message: "Required",
-            },
-            required: {
-              value: true,
-              message: "Required",
-            },
-          })}
-          label="Content"
-          autoComplete="off"
-          autoFocus
-          rows={24}
-          required
-          error={errors.content?.message}
-        />
-        <PasswordInput
-          mt="md"
-          label="Master password"
-          autoComplete="current-password"
-          description="To edit or delete it later"
-          {...register("password", {
-            minLength: {
-              value: 10,
-              message: "Must have at least 10 characters",
-            },
-          })}
-          error={errors.password?.message}
-        />
-        <Button mt="md" type="submit">
-          Submit
-        </Button>
-      </form>
-      <LoadingOverlay visible={isLoading} />
-    </Box>
+    <>
+      <Box pos="relative">
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          <Title mb="md">Create a note</Title>
+          <Textarea
+            {...register("content", {
+              minLength: {
+                value: 1,
+                message: "Required",
+              },
+              required: {
+                value: true,
+                message: "Required",
+              },
+            })}
+            label="Content"
+            autoComplete="off"
+            autoFocus
+            rows={24}
+            required
+            error={errors.content?.message}
+          />
+          <PasswordInput
+            mt="md"
+            label="Master password"
+            autoComplete="current-password"
+            description="To edit or delete it later"
+            {...register("password", {
+              minLength: {
+                value: 10,
+                message: "Must have at least 10 characters",
+              },
+            })}
+            error={errors.password?.message}
+          />
+          <Button mt="md" type="submit">
+            Submit
+          </Button>
+        </form>
+      </Box>
+      <ScreenLoading isLoading={isLoading} />
+    </>
   );
 };
