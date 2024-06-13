@@ -3,19 +3,18 @@
 import { createNote } from "@/client/api/vault.api";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
-import { encryptText, generatePassword, hashPassword } from "@/shared/utils/crypto";
+import { createNoteFormSchema } from "@/server/features/vault/vault.schema";
+import { CreateNoteFormValues } from "@/server/features/vault/vault.type";
+import { encryptText, generatePassword, generatePasswordConfigs, hashPasswordValue } from "@/shared/utils/crypto";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, PasswordInput, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-type FormValues = {
-  content: string;
-  password: string;
-};
-const defaultFormValues: FormValues = {
+const defaultFormValues: CreateNoteFormValues = {
   content: "",
-  password: "",
+  password: undefined,
 };
 
 export const NoteAdd = () => {
@@ -25,26 +24,29 @@ export const NoteAdd = () => {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<CreateNoteFormValues>({
     defaultValues: defaultFormValues,
+    resolver: zodResolver(createNoteFormSchema),
   });
   const [isLoading, setIsLoading] = useState(false);
   const { addNoteUrl } = useAppStore();
 
-  const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
+  const handleFormSubmit: SubmitHandler<CreateNoteFormValues> = async (data) => {
     try {
       setIsLoading(true);
-      const randomPassword = generatePassword();
+
+      // generate password
+      const passwordConfigs = generatePasswordConfigs();
+      let randomPassword = generatePassword();
+
+      // encrypt data
       const encrypted = await encryptText(data.content, randomPassword);
-      let password: undefined | Awaited<ReturnType<typeof hashPassword>> = undefined;
-      if (!!data.password) {
-        password = await hashPassword(data.password);
-      }
-      if (!password || password?.error) throw new Error();
+      let masterPassword = data.password ? await hashPasswordValue(data.password, passwordConfigs) : undefined;
+
       const body = await createNote({
         content: encrypted || "",
-        password: password.hash,
-        configs: { password: password.configs },
+        password: masterPassword,
+        configs: { password: passwordConfigs },
       });
       const link = `/n/${body.publicId}#${randomPassword}`;
       addNoteUrl(window.location.origin + link);
@@ -62,21 +64,12 @@ export const NoteAdd = () => {
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <Title mb="md">Create a note</Title>
           <Textarea
-            {...register("content", {
-              minLength: {
-                value: 1,
-                message: "Required",
-              },
-              required: {
-                value: true,
-                message: "Required",
-              },
-            })}
             label="Content"
             autoComplete="off"
             autoFocus
             rows={24}
-            required
+            withAsterisk
+            {...register("content")}
             error={errors.content?.message}
           />
           <PasswordInput
@@ -84,12 +77,7 @@ export const NoteAdd = () => {
             label="Master password"
             autoComplete="current-password"
             description="To edit or delete it later"
-            {...register("password", {
-              minLength: {
-                value: 10,
-                message: "Must have at least 10 characters",
-              },
-            })}
+            {...register("password")}
             error={errors.password?.message}
           />
           <Button mt="md" type="submit">

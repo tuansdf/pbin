@@ -3,8 +3,19 @@ import { VaultTable } from "@/server/entities/vault.entity";
 export type Vault = typeof VaultTable.$inferSelect;
 export type VaultCreate = typeof VaultTable.$inferInsert;
 
+export type CreateLinkFormValues = {
+  content: string;
+  password: string;
+};
+
+export type CreateNoteFormValues = {
+  content: string;
+  password?: string;
+};
+
 export type CreateLinkRequest = {
   content: string;
+  configs: VaultConfigs;
 };
 
 export type CreateLinkResponse = {
@@ -20,17 +31,19 @@ export type GetVaultConfigsResponse = {
 };
 
 export type VaultConfigs = {
-  password: {
-    keySize: number;
-    iterations: number;
-    salt: string;
-  };
+  password: PasswordConfigs;
+};
+
+export type PasswordConfigs = {
+  keySize: number;
+  iterations: number;
+  salt: string;
 };
 
 export type CreateNoteRequest = {
   content: string;
   password?: string;
-  configs?: VaultConfigs;
+  configs: VaultConfigs;
 };
 
 export type DeleteVaultRequest = {

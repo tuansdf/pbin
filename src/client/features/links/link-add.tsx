@@ -2,19 +2,19 @@
 
 import { createLink } from "@/client/api/vault.api";
 import { ErrorMessage } from "@/client/components/error";
+import { ScreenLoading } from "@/client/components/screen-loading";
 import classes from "@/client/features/links/link-add.module.scss";
 import { useAppStore } from "@/client/stores/app.store";
 import fclasses from "@/client/styles/form.module.scss";
-import { encryptText } from "@/shared/utils/crypto";
-import { Button, Card, CopyButton, LoadingOverlay, PasswordInput, TextInput, Title } from "@mantine/core";
+import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
+import { CreateLinkFormValues } from "@/server/features/vault/vault.type";
+import { encryptText, generatePasswordConfigs, hashPasswordValue } from "@/shared/utils/crypto";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Card, CopyButton, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-type FormValues = {
-  content: string;
-  password: string;
-};
-const defaultFormValues: FormValues = {
+const defaultFormValues: CreateLinkFormValues = {
   content: "",
   password: "",
 };
@@ -25,23 +25,26 @@ export const LinkAdd = () => {
     register,
     formState: { errors },
     reset,
-  } = useForm<FormValues>({
+  } = useForm<CreateLinkFormValues>({
     defaultValues: defaultFormValues,
     reValidateMode: "onSubmit",
+    resolver: zodResolver(createLinkFormSchema),
   });
   const { addPassword, addShortUrl } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [shortLink, setShortLink] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
+  const handleFormSubmit: SubmitHandler<CreateLinkFormValues> = async (data) => {
     try {
       setErrorMessage("");
       setIsLoading(true);
-      const encrypted = await encryptText(data.content, data.password);
-      const body = await createLink({ content: encrypted || "" });
+      const passwordConfigs = generatePasswordConfigs();
+      const hashedPassword = await hashPasswordValue(data.password, passwordConfigs);
+      const encrypted = await encryptText(data.content, hashedPassword);
+      const body = await createLink({ content: encrypted || "", configs: { password: passwordConfigs } });
       reset({ password: "" });
-      addPassword(data.password);
+      addPassword(hashedPassword);
       const shortLink = window.location.origin + `/s/${body.publicId}`;
       addShortUrl(shortLink);
       setShortLink(shortLink);
@@ -77,44 +80,19 @@ export const LinkAdd = () => {
         <TextInput
           autoComplete="off"
           autoFocus
-          required
+          withAsterisk
           label="Long link"
           readOnly={isSubmitted}
-          {...register("content", {
-            minLength: {
-              value: 1,
-              message: "Required",
-            },
-            required: {
-              value: true,
-              message: "Required",
-            },
-            validate: (v) => {
-              try {
-                new URL(v);
-              } catch (e) {
-                return "Must be a valid URL";
-              }
-            },
-          })}
+          {...register("content")}
           error={errors.content?.message}
         />
         {!isSubmitted && (
           <PasswordInput
             type="password"
             autoComplete="current-password"
-            required
+            withAsterisk
             label="Password"
-            {...register("password", {
-              minLength: {
-                value: 10,
-                message: "Must have at least 10 characters",
-              },
-              required: {
-                value: true,
-                message: "Required",
-              },
-            })}
+            {...register("password")}
             error={errors.password?.message}
           />
         )}
@@ -145,9 +123,9 @@ export const LinkAdd = () => {
             Make another
           </Button>
         )}
-
-        <LoadingOverlay visible={isLoading} />
       </Card>
+
+      <ScreenLoading isLoading={isLoading} />
 
       {!!errorMessage && <ErrorMessage msg={errorMessage} />}
     </>

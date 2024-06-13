@@ -1,4 +1,4 @@
-import { VaultConfigs } from "@/server/features/vault/vault.type";
+import { PasswordConfigs } from "@/server/features/vault/vault.type";
 import CryptoJS from "crypto-js";
 import { customAlphabet } from "nanoid";
 
@@ -61,7 +61,7 @@ export const generateRandomAndHandleCollision = async ({
   return random;
 };
 
-export const generatePasswordConfigs = (config?: VaultConfigs["password"]): VaultConfigs["password"] => {
+export const generatePasswordConfigs = (config?: PasswordConfigs): PasswordConfigs => {
   let keySize = Number(config?.keySize) || 128 / 8;
   let saltSize = 256 / 32;
   let iterations = Number(config?.iterations) || 600_000;
@@ -71,8 +71,8 @@ export const generatePasswordConfigs = (config?: VaultConfigs["password"]): Vaul
 
 export const hashPassword = async (
   password: string,
-  configs?: VaultConfigs["password"],
-): Promise<{ configs: VaultConfigs["password"]; error: false; hash: string } | { error: true }> => {
+  configs?: PasswordConfigs,
+): Promise<{ configs: PasswordConfigs; error: false; hash: string } | { error: true }> => {
   try {
     await new Promise((r) => setTimeout(r, 1000));
     const { keySize, iterations, salt } = generatePasswordConfigs(configs);
@@ -100,4 +100,12 @@ export const hashPassword = async (
       error: true,
     };
   }
+};
+
+export const hashPasswordValue = async (password: string, configs?: PasswordConfigs): Promise<string> => {
+  const result = await hashPassword(password, configs);
+  if (result.error) {
+    return password;
+  }
+  return result.hash;
 };
