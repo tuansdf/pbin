@@ -49,7 +49,7 @@ const decryptContent = async (
       return false;
     } else {
       const url = new URL(decryptedContent);
-      // window.location.href = url.toString();
+      window.location.href = url.toString();
       configs?.onSuccess?.(decryptPassword);
       return true;
     }
