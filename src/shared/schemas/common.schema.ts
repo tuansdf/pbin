@@ -7,4 +7,4 @@ export const passwordSchema = z
   })
   .min(10, "Must have at least 10 characters");
 
-export const stringOptional = z.string().transform((v) => v || undefined);
+export const stringOrUndefined = z.string().transform((v) => v || undefined);

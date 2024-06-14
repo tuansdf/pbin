@@ -69,10 +69,7 @@ const VaultDeleteModalContent = ({ id, isLoading, setIsLoading }: ContentProps) 
         throw new Error();
       }
       const password = await hashPassword(data.password, configs.password);
-      if (password.error) {
-        throw new Error();
-      }
-      await deleteVault(id, { password: password.hash });
+      await deleteVault(id, { password });
       router.push("/n-add");
     } catch (e) {
       setIsError(true);

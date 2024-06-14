@@ -5,7 +5,7 @@ import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
 import { createNoteFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateNoteFormValues } from "@/server/features/vault/vault.type";
-import { encryptText, generatePassword, generatePasswordConfigs, hashPasswordValue } from "@/shared/utils/crypto";
+import { encryptText, generatePassword, generatePasswordConfigs, hashPassword } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, PasswordInput, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
@@ -41,7 +41,7 @@ export const NoteAdd = () => {
 
       // encrypt data
       const encrypted = await encryptText(data.content, randomPassword);
-      let masterPassword = data.password ? await hashPasswordValue(data.password, passwordConfigs) : undefined;
+      let masterPassword = data.password ? await hashPassword(data.password, passwordConfigs) : undefined;
 
       const body = await createNote({
         content: encrypted || "",

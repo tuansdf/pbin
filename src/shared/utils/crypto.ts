@@ -1,4 +1,5 @@
-import { PasswordConfigs } from "@/server/features/vault/vault.type";
+import { DEFAULT_SALT } from "@/server/features/vault/vault.constant";
+import { PasswordConfigs, PasswordConfigsInput } from "@/server/features/vault/vault.type";
 import CryptoJS from "crypto-js";
 import { customAlphabet } from "nanoid";
 
@@ -13,6 +14,18 @@ export const decryptText = async (content: string, password: string): Promise<st
     const bytes = CryptoJS.AES.decrypt(content, password);
     return bytes.toString(CryptoJS.enc.Utf8);
   } catch (e) {}
+};
+
+export const decryptTextWithPassword = async (
+  content: string,
+  password: string,
+): Promise<{ error: false; password: string; content: string } | { error: true }> => {
+  try {
+    const bytes = CryptoJS.AES.decrypt(content, password);
+    return { error: false, content: bytes.toString(CryptoJS.enc.Utf8), password };
+  } catch (e) {
+    return { error: true };
+  }
 };
 
 const DEFAULT_ID_SIZE = 24;
@@ -61,7 +74,7 @@ export const generateRandomAndHandleCollision = async ({
   return random;
 };
 
-export const generatePasswordConfigs = (config?: PasswordConfigs): PasswordConfigs => {
+export const generatePasswordConfigs = (config?: PasswordConfigsInput): PasswordConfigs => {
   let keySize = Number(config?.keySize) || 128 / 8;
   let saltSize = 256 / 32;
   let iterations = Number(config?.iterations) || 600_000;
@@ -69,9 +82,9 @@ export const generatePasswordConfigs = (config?: PasswordConfigs): PasswordConfi
   return { keySize, iterations, salt };
 };
 
-export const hashPassword = async (
+const executeHashPassword = async (
   password: string,
-  configs?: PasswordConfigs,
+  configs?: PasswordConfigsInput,
 ): Promise<{ configs: PasswordConfigs; error: false; hash: string } | { error: true }> => {
   try {
     await new Promise((r) => setTimeout(r, 1000));
@@ -102,8 +115,18 @@ export const hashPassword = async (
   }
 };
 
-export const hashPasswordValue = async (password: string, configs?: PasswordConfigs): Promise<string> => {
-  const result = await hashPassword(password, configs);
+export const hashPassword = async (password: string, configs?: PasswordConfigs): Promise<string> => {
+  const result = await executeHashPassword(password, configs);
+  if (result.error) {
+    return password;
+  }
+  return result.hash;
+};
+
+export const hashPasswordNoSalt = async (password: string, configs?: PasswordConfigsInput) => {
+  if (!configs) configs = {};
+  configs.salt = DEFAULT_SALT;
+  const result = await executeHashPassword(password, configs);
   if (result.error) {
     return password;
   }

@@ -4,7 +4,10 @@ import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { useAppStore } from "@/client/stores/app.store";
-import { decryptText } from "@/shared/utils/crypto";
+import { decryptVaultFormSchema } from "@/server/features/vault/vault.schema";
+import { DecryptVaultFormValues, VaultConfigs } from "@/server/features/vault/vault.type";
+import { decryptTextWithPassword, hashPasswordNoSalt } from "@/shared/utils/crypto";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Modal, PasswordInput } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -12,14 +15,47 @@ import { SubmitHandler, useForm } from "react-hook-form";
 type Props = {
   item: {
     content: string | null;
+    configs?: VaultConfigs;
   };
 };
 
-type FormValues = {
-  password: string;
-};
-const defaultFormValues: FormValues = {
+const defaultFormValues: DecryptVaultFormValues = {
   password: "",
+};
+
+const decryptContent = async (
+  content: string,
+  passwords: Set<string | null | undefined>,
+  configs?: {
+    onSuccess?: (password: string) => void;
+  },
+): Promise<boolean> => {
+  if (!content || !passwords?.size) return false;
+  try {
+    const promises: ReturnType<typeof decryptTextWithPassword>[] = [];
+    passwords?.forEach((password) => {
+      if (!password) return;
+      promises.push(decryptTextWithPassword(content, password));
+    });
+    const decryptedResult = await Promise.allSettled(promises);
+    let decryptedContent = "";
+    let decryptPassword = "";
+    decryptedResult.forEach((x, i) => {
+      if (x.status !== "fulfilled" || x.value.error) return;
+      decryptedContent = x.value.content;
+      decryptPassword = x.value.password;
+    });
+    if (!decryptedContent) {
+      return false;
+    } else {
+      const url = new URL(decryptedContent);
+      // window.location.href = url.toString();
+      configs?.onSuccess?.(decryptPassword);
+      return true;
+    }
+  } catch (e) {
+    return false;
+  }
 };
 
 export const LinkDetail = ({ item }: Props) => {
@@ -27,73 +63,41 @@ export const LinkDetail = ({ item }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isPasswordOpen, { open: openPasswordModal }] = useDisclosure(false);
-  const { handleSubmit, register } = useForm<FormValues>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<DecryptVaultFormValues>({
     defaultValues: defaultFormValues,
+    resolver: zodResolver(decryptVaultFormSchema),
   });
 
-  const decryptContent = useCallback(async () => {
-    const content = item.content;
-    if (!content) {
-      setIsError(true);
-      setIsLoading(false);
-      return;
-    }
-    if (!passwords?.size) {
+  const autoDecryptContent = useCallback(async () => {
+    setIsLoading(true);
+    const result = await decryptContent(item.content || "", passwords || new Set());
+    setIsLoading(false);
+    if (!result) {
       openPasswordModal();
-      setIsLoading(false);
-      return;
-    }
-    try {
-      setIsError(false);
-      setIsLoading(true);
-      await new Promise((r) => setTimeout(r, 800));
-      const promises: Promise<string | undefined>[] = [];
-      passwords?.forEach((password) => {
-        if (!password) return;
-        promises.push(decryptText(content, password));
-      });
-      const decrypteds = await Promise.allSettled(promises);
-      const decrypted = decrypteds.find((x) => x.status === "fulfilled" && !!x.value);
-      const dcontent = decrypted?.status === "fulfilled" ? decrypted.value || "" : "";
-      if (!dcontent) {
-        openPasswordModal();
-      } else {
-        const url = new URL(dcontent);
-        window.location.href = url.toString();
-      }
-    } catch (e) {
-      openPasswordModal();
-    } finally {
-      setIsLoading(false);
     }
   }, [item.content, passwords, openPasswordModal]);
 
-  useEffect(() => {
-    decryptContent();
-  }, [decryptContent]);
-
-  const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
-    const content = item.content;
-    if (!content) {
-      return setIsError(true);
-    }
-    try {
-      setIsLoading(true);
-      setIsError(false);
-      const decrypted = await decryptText(content, data.password);
-      if (!decrypted) {
-        setIsError(true);
-      } else {
-        addPassword(data.password);
-        const url = new URL(decrypted);
-        window.location.href = url.toString();
-      }
-    } catch (e) {
+  const handleFormSubmit: SubmitHandler<DecryptVaultFormValues> = async (data) => {
+    setIsError(false);
+    setIsLoading(true);
+    const password = await hashPasswordNoSalt(data.password, item.configs?.password);
+    const result = await decryptContent(item.content || "", new Set([password]), {
+      onSuccess: (password) => addPassword(password),
+    });
+    setIsLoading(false);
+    if (!result) {
       setIsError(true);
-    } finally {
-      setIsLoading(false);
+      openPasswordModal();
     }
   };
+
+  useEffect(() => {
+    autoDecryptContent();
+  }, [autoDecryptContent]);
 
   return (
     <>
@@ -101,20 +105,7 @@ export const LinkDetail = ({ item }: Props) => {
 
       <Modal opened={isPasswordOpen} onClose={() => {}} title="Decrypt this link">
         <Box component="form" onSubmit={handleSubmit(handleFormSubmit)}>
-          <PasswordInput
-            label="Password"
-            {...register("password", {
-              required: {
-                value: true,
-                message: "Required",
-              },
-              minLength: {
-                value: 10,
-                message: "Must have at least 10 characters",
-              },
-            })}
-            required
-          />
+          <PasswordInput label="Password" {...register("password")} error={errors.password?.message} withAsterisk />
           <Button type="submit" mt="xs">
             Submit
           </Button>
@@ -122,7 +113,7 @@ export const LinkDetail = ({ item }: Props) => {
         </Box>
       </Modal>
 
-      {isLoading && <ScreenLoading isLoading={isLoading} />}
+      <ScreenLoading isLoading={isLoading} />
     </>
   );
 };

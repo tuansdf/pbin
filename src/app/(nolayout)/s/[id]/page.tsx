@@ -1,9 +1,9 @@
-import { LinkDetail } from "@/client/features/links/link-detail";
 import { NotFound } from "@/client/components/not-found";
-import { vaultRepository } from "@/server/features/vault/vault.repository";
+import { LinkDetail } from "@/client/features/links/link-detail";
+import { vaultService } from "@/server/features/vault/vault.service";
 
 export default async function DetailPage({ params }: { params: { id: string } }) {
-  const item = await vaultRepository.getTopByPublicId(params.id);
+  const item = await vaultService.getTopByPublicId(params.id);
 
   return <>{!!item ? <LinkDetail item={item} /> : <NotFound />}</>;
 }

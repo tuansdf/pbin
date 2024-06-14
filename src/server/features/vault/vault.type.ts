@@ -40,6 +40,8 @@ export type PasswordConfigs = {
   salt: string;
 };
 
+export type PasswordConfigsInput = Partial<PasswordConfigs>;
+
 export type CreateNoteRequest = {
   content: string;
   password?: string;
@@ -47,5 +49,9 @@ export type CreateNoteRequest = {
 };
 
 export type DeleteVaultRequest = {
+  password: string;
+};
+
+export type DecryptVaultFormValues = {
   password: string;
 };

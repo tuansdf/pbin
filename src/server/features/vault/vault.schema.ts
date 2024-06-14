@@ -3,11 +3,12 @@ import {
   CreateLinkRequest,
   CreateNoteFormValues,
   CreateNoteRequest,
+  DecryptVaultFormValues,
   DeleteVaultRequest,
   PasswordConfigs,
   VaultConfigs,
 } from "@/server/features/vault/vault.type";
-import { passwordSchema, stringOptional } from "@/shared/schemas/common.schema";
+import { passwordSchema, stringOrUndefined } from "@/shared/schemas/common.schema";
 import { z } from "zod";
 
 const passwordConfigsSchema: z.ZodType<PasswordConfigs> = z.object(
@@ -75,5 +76,9 @@ export const createLinkFormSchema: z.ZodType<CreateLinkFormValues> = z.object({
 
 export const createNoteFormSchema: z.ZodType<CreateNoteFormValues> = z.object({
   content: contentSchema,
-  password: stringOptional.pipe(passwordSchema.optional()),
+  password: stringOrUndefined.pipe(passwordSchema.optional()),
+});
+
+export const decryptVaultFormSchema: z.ZodType<DecryptVaultFormValues> = z.object({
+  password: passwordSchema,
 });

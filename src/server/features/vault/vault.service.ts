@@ -1,6 +1,11 @@
 import { DEFAULT_LINK_ID_SIZE, DEFAULT_NOTE_ID_SIZE } from "@/server/features/vault/vault.constant";
 import { vaultRepository } from "@/server/features/vault/vault.repository";
-import { CreateLinkRequest, CreateNoteRequest, DeleteVaultRequest } from "@/server/features/vault/vault.type";
+import {
+  CreateLinkRequest,
+  CreateNoteRequest,
+  DeleteVaultRequest,
+  VaultConfigs,
+} from "@/server/features/vault/vault.type";
 import { handleVaultPublicIdCollision } from "@/server/features/vault/vault.util";
 import { CustomException } from "@/shared/exceptions/custom-exception";
 import { generateId } from "@/shared/utils/crypto";
@@ -28,7 +33,16 @@ class VaultService {
     if (!vault) {
       throw new CustomException();
     }
-    return vault;
+    let configs: VaultConfigs | undefined = undefined;
+    try {
+      const c = vault.configs;
+      if (c) configs = JSON.parse(c) as VaultConfigs;
+    } catch (e) {}
+
+    return {
+      content: vault.content,
+      configs,
+    };
   };
 
   public getTopByPublicIdInternal = async (id: string) => {

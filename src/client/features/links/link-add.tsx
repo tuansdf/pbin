@@ -8,7 +8,7 @@ import { useAppStore } from "@/client/stores/app.store";
 import fclasses from "@/client/styles/form.module.scss";
 import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateLinkFormValues } from "@/server/features/vault/vault.type";
-import { encryptText, generatePasswordConfigs, hashPasswordValue } from "@/shared/utils/crypto";
+import { encryptText, generatePasswordConfigs, hashPasswordNoSalt } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, CopyButton, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
@@ -40,7 +40,7 @@ export const LinkAdd = () => {
       setErrorMessage("");
       setIsLoading(true);
       const passwordConfigs = generatePasswordConfigs();
-      const hashedPassword = await hashPasswordValue(data.password, passwordConfigs);
+      const hashedPassword = await hashPasswordNoSalt(data.password, passwordConfigs);
       const encrypted = await encryptText(data.content, hashedPassword);
       const body = await createLink({ content: encrypted || "", configs: { password: passwordConfigs } });
       reset({ password: "" });

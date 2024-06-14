@@ -18,6 +18,7 @@ class VaultRepository {
     const result = await db
       .select({
         content: VaultTable.content,
+        configs: VaultTable.configs,
       })
       .from(VaultTable)
       .where(eq(VaultTable.publicId, publicId))
