@@ -10,7 +10,7 @@ import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateLinkFormValues } from "@/server/features/vault/vault.type";
 import { encryptText, generatePasswordConfigs, hashPasswordNoSalt } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Card, CopyButton, PasswordInput, TextInput, Title } from "@mantine/core";
+import { Button, Card, CopyButton, Group, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -33,6 +33,7 @@ export const LinkAdd = () => {
   const { addPassword, addShortUrl } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [shortLink, setShortLink] = useState("");
+  const [shortLinkWithPassword, setShortLinkWithPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleFormSubmit: SubmitHandler<CreateLinkFormValues> = async (data) => {
@@ -48,6 +49,7 @@ export const LinkAdd = () => {
       const shortLink = window.location.origin + `/s/${body.publicId}`;
       addShortUrl(shortLink);
       setShortLink(shortLink);
+      setShortLinkWithPassword(shortLink + `#${hashedPassword}`);
     } catch (e) {
       setErrorMessage("Something Went Wrong");
     } finally {
@@ -76,12 +78,12 @@ export const LinkAdd = () => {
         maw="30rem"
         mb="md"
       >
-        <Title>Shorten a link</Title>
+        <Title>Shorten a URL</Title>
         <TextInput
           autoComplete="off"
           autoFocus
           withAsterisk
-          label="Long link"
+          label="Long URL"
           readOnly={isSubmitted}
           {...register("content")}
           error={errors.content?.message}
@@ -98,19 +100,26 @@ export const LinkAdd = () => {
         )}
         {isSubmitted && (
           <>
-            <TextInput readOnly label="Short link" value={shortLink} />
-            <div className={classes["buttons"]}>
+            <TextInput readOnly label="Short URL" value={shortLink} />
+            <Group>
               <Button component="a" href={shortLink} target="_blank" variant="default">
                 Open
               </Button>
               <CopyButton value={shortLink}>
                 {({ copied, copy }) => (
                   <Button color={copied ? "teal" : "blue"} onClick={copy}>
-                    {copied ? "Copied url" : "Copy url"}
+                    {copied ? "Copied URL" : "Copy URL"}
                   </Button>
                 )}
               </CopyButton>
-            </div>
+              <CopyButton value={shortLinkWithPassword}>
+                {({ copied, copy }) => (
+                  <Button color={copied ? "teal" : "blue"} onClick={copy}>
+                    {copied ? "Copied URL" : "Copy URL (password embed)"}
+                  </Button>
+                )}
+              </CopyButton>
+            </Group>
           </>
         )}
         {!isSubmitted && (

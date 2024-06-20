@@ -1,13 +1,13 @@
 import { MantineProvider } from "@/client/lib/mantine-provider";
 import { ColorSchemeScript } from "@mantine/core";
-import React from "react";
+import { ReactNode } from "react";
 import "@/app/styles";
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+type Props = {
+  children: ReactNode;
+};
+
+export default function RootLayout({ children }: Readonly<Props>) {
   return (
     <html lang="en">
       <head>

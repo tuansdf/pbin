@@ -2,13 +2,13 @@ import { LinkHistory } from "@/client/features/links/link-history";
 import { Title } from "@mantine/core";
 
 export const metadata = {
-  title: "Link history",
+  title: "URL history",
 };
 
 export default function Page() {
   return (
     <>
-      <Title mb="md">Link history</Title>
+      <Title mb="md">URL history</Title>
 
       <LinkHistory />
     </>

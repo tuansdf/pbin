@@ -6,8 +6,11 @@ type AppState = {
   noteUrls: Set<string | undefined | null> | undefined | null;
   shortUrls: Set<string | undefined | null> | undefined | null;
   addPassword: (a: string) => void;
+  removePassword: (a: string) => void;
   addNoteUrl: (a: string) => void;
+  removeNoteUrl: (a: string) => void;
   addShortUrl: (a: string) => void;
+  removeShortUrl: (a: string) => void;
 };
 
 export const useAppStore = create<AppState>()(
@@ -16,9 +19,24 @@ export const useAppStore = create<AppState>()(
       passwords: new Set(),
       noteUrls: new Set(),
       shortUrls: new Set(),
-      addPassword: (text) => set((state) => ({ passwords: new Set(state.passwords).add(text) })),
-      addNoteUrl: (text) => set((state) => ({ noteUrls: new Set(state.noteUrls).add(text) })),
-      addShortUrl: (text) => set((state) => ({ shortUrls: new Set(state.shortUrls).add(text) })),
+      addPassword: (text) => set((state) => ({ passwords: new Set(state.passwords?.add(text)) })),
+      removePassword: (text) =>
+        set((state) => {
+          state.passwords?.delete(text);
+          return { passwords: new Set(state.passwords) };
+        }),
+      addNoteUrl: (text) => set((state) => ({ noteUrls: new Set(state.noteUrls?.add(text)) })),
+      removeNoteUrl: (text) =>
+        set((state) => {
+          state.noteUrls?.delete(text);
+          return { noteUrls: new Set(state.noteUrls) };
+        }),
+      addShortUrl: (text) => set((state) => ({ shortUrls: new Set(state.shortUrls?.add(text)) })),
+      removeShortUrl: (text) =>
+        set((state) => {
+          state.shortUrls?.delete(text);
+          return { shortUrls: new Set(state.shortUrls) };
+        }),
     }),
     {
       name: "store",

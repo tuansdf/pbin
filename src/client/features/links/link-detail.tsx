@@ -49,8 +49,9 @@ const decryptContent = async (
       return false;
     } else {
       const url = new URL(decryptedContent);
-      window.location.href = url.toString();
       configs?.onSuccess?.(decryptPassword);
+      await new Promise((r) => setTimeout(r, 200));
+      window.location.href = url.toString();
       return true;
     }
   } catch (e) {
@@ -59,7 +60,7 @@ const decryptContent = async (
 };
 
 export const LinkDetail = ({ item }: Props) => {
-  const { passwords, addPassword } = useAppStore();
+  const { passwords, addPassword, addShortUrl } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isPasswordOpen, { open: openPasswordModal }] = useDisclosure(false);
@@ -74,7 +75,8 @@ export const LinkDetail = ({ item }: Props) => {
 
   const autoDecryptContent = useCallback(async () => {
     setIsLoading(true);
-    const result = await decryptContent(item.content || "", passwords || new Set());
+    const passwordOnHash = window.location.hash.slice(1);
+    const result = await decryptContent(item.content || "", new Set(passwords).add(passwordOnHash) || new Set());
     setIsLoading(false);
     if (!result) {
       openPasswordModal();
@@ -86,7 +88,10 @@ export const LinkDetail = ({ item }: Props) => {
     setIsLoading(true);
     const password = await hashPasswordNoSalt(data.password, item.configs?.password);
     const result = await decryptContent(item.content || "", new Set([password]), {
-      onSuccess: (password) => addPassword(password),
+      onSuccess: (password) => {
+        addPassword(password);
+        addShortUrl(window.location.origin + window.location.pathname);
+      },
     });
     setIsLoading(false);
     if (!result) {

@@ -37,10 +37,10 @@ export const AppShell = ({ children }: Props) => {
           active={pathname === "/n-history"}
           onClick={close}
         />
-        <NavLink href="/s-add" label="Shorten a link" component={Link} active={pathname === "/s-add"} onClick={close} />
+        <NavLink href="/s-add" label="Shorten a URL" component={Link} active={pathname === "/s-add"} onClick={close} />
         <NavLink
           href="/s-history"
-          label="Link history"
+          label="URL history"
           component={Link}
           active={pathname === "/s-history"}
           onClick={close}
