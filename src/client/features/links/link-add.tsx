@@ -3,7 +3,6 @@
 import { createLink } from "@/client/api/vault.api";
 import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
-import classes from "@/client/features/links/link-add.module.scss";
 import { useAppStore } from "@/client/stores/app.store";
 import fclasses from "@/client/styles/form.module.scss";
 import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
