@@ -26,11 +26,8 @@ const defaultFormValues: DecryptVaultFormValues = {
 const decryptContent = async (
   content: string,
   passwords: Set<string | null | undefined>,
-  configs?: {
-    onSuccess?: (password: string) => void;
-  },
-): Promise<boolean> => {
-  if (!content || !passwords?.size) return false;
+): Promise<{ status: "success"; raw: string; password: string; url: string } | { status: "fail" }> => {
+  if (!content || !passwords?.size) return { status: "fail" };
   try {
     const promises: ReturnType<typeof decryptTextWithPassword>[] = [];
     passwords?.forEach((password) => {
@@ -46,16 +43,13 @@ const decryptContent = async (
       decryptPassword = x.value.password;
     });
     if (!decryptedContent) {
-      return false;
+      return { status: "fail" };
     } else {
       const url = new URL(decryptedContent);
-      configs?.onSuccess?.(decryptPassword);
-      await new Promise((r) => setTimeout(r, 200));
-      window.location.href = url.toString();
-      return true;
+      return { status: "success", raw: decryptedContent, password: decryptPassword, url: url.toString() };
     }
   } catch (e) {
-    return false;
+    return { status: "fail" };
   }
 };
 
@@ -77,27 +71,40 @@ export const LinkDetail = ({ item }: Props) => {
     setIsLoading(true);
     const passwordOnHash = window.location.hash.slice(1);
     const result = await decryptContent(item.content || "", new Set(passwords).add(passwordOnHash) || new Set());
-    setIsLoading(false);
-    if (!result) {
+    if (result.status === "success") {
+      window.location.href = result.url;
+      return;
+    }
+    if (result.status === "fail") {
       openPasswordModal();
     }
+    setIsLoading(false);
   }, [item.content, passwords, openPasswordModal]);
 
   const handleFormSubmit: SubmitHandler<DecryptVaultFormValues> = async (data) => {
     setIsError(false);
     setIsLoading(true);
+    const shortUrl = window.location.origin + window.location.pathname;
+    const rawResult = await decryptContent(item.content || "", new Set([data.password]));
+    if (rawResult.status === "success") {
+      addPassword(rawResult.password);
+      addShortUrl(shortUrl);
+      window.location.href = rawResult.url;
+      return;
+    }
     const password = await hashPasswordNoSalt(data.password, item.configs?.password);
-    const result = await decryptContent(item.content || "", new Set([password]), {
-      onSuccess: (password) => {
-        addPassword(password);
-        addShortUrl(window.location.origin + window.location.pathname);
-      },
-    });
-    setIsLoading(false);
-    if (!result) {
+    const hashedResult = await decryptContent(item.content || "", new Set([password]));
+    if (hashedResult.status === "success") {
+      addPassword(hashedResult.password);
+      addShortUrl(shortUrl);
+      window.location.href = hashedResult.url;
+      return;
+    }
+    if (hashedResult.status === "fail") {
       setIsError(true);
       openPasswordModal();
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -108,7 +115,13 @@ export const LinkDetail = ({ item }: Props) => {
     <>
       {isError && !isPasswordOpen && <ErrorMessage mt="md" />}
 
-      <Modal opened={isPasswordOpen} onClose={() => {}} title="Decrypt this link">
+      <Modal
+        opened={isPasswordOpen}
+        onClose={() => {}}
+        title="Decrypt this link"
+        withCloseButton={false}
+        transitionProps={{ transition: "fade", duration: 0 }}
+      >
         <Box component="form" onSubmit={handleSubmit(handleFormSubmit)}>
           <PasswordInput label="Password" {...register("password")} error={errors.password?.message} withAsterisk />
           <Button type="submit" mt="xs">

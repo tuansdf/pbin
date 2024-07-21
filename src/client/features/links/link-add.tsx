@@ -7,7 +7,7 @@ import { useAppStore } from "@/client/stores/app.store";
 import fclasses from "@/client/styles/form.module.scss";
 import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateLinkFormValues } from "@/server/features/vault/vault.type";
-import { encryptText, generatePasswordConfigs, hashPasswordNoSalt } from "@/shared/utils/crypto";
+import { encryptText, generatePassword, generatePasswordConfigs, hashPasswordNoSalt } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, CopyButton, Group, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
@@ -24,6 +24,8 @@ export const LinkAdd = () => {
     register,
     formState: { errors },
     reset,
+    setValue,
+    getValues,
   } = useForm<CreateLinkFormValues>({
     defaultValues: defaultFormValues,
     reValidateMode: "onSubmit",
@@ -61,6 +63,11 @@ export const LinkAdd = () => {
     setShortLink("");
   };
 
+  const handlePreSubmit = () => {
+    if (!getValues("content")) return;
+    setValue("password", generatePassword());
+  };
+
   const isSubmitted = !!shortLink;
 
   return (
@@ -91,10 +98,10 @@ export const LinkAdd = () => {
           <PasswordInput
             type="password"
             autoComplete="current-password"
-            withAsterisk
             label="Password"
             {...register("password")}
             error={errors.password?.message}
+            description="Random password will be generated when left empty"
           />
         )}
         {isSubmitted && (
@@ -122,13 +129,13 @@ export const LinkAdd = () => {
           </>
         )}
         {!isSubmitted && (
-          <Button type="submit" w="max-content">
+          <Button type="submit" w="max-content" onClick={handlePreSubmit}>
             Submit
           </Button>
         )}
         {isSubmitted && (
           <Button type="reset" w="max-content" onClick={resetForm}>
-            Make another
+            Shorten another
           </Button>
         )}
       </Card>
