@@ -64,7 +64,7 @@ export const LinkAdd = () => {
   };
 
   const handlePreSubmit = () => {
-    if (!getValues("content")) return;
+    if (!getValues("content") || getValues("password")) return;
     setValue("password", generatePassword());
   };
 
