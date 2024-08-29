@@ -1,24 +1,15 @@
-import { DEFAULT_LINK_ID_SIZE, DEFAULT_NOTE_ID_SIZE } from "@/server/features/vault/vault.constant";
+import { DEFAULT_LINK_ID_SIZE, DEFAULT_NOTE_ID_SIZE, VAULT_TYPE_LINK } from "@/server/features/vault/vault.constant";
 import { vaultRepository } from "@/server/features/vault/vault.repository";
-import {
-  CreateLinkRequest,
-  CreateNoteRequest,
-  DeleteVaultRequest,
-  VaultConfigs,
-} from "@/server/features/vault/vault.type";
+import { CreateVaultRequest, DeleteVaultRequest, VaultConfigs } from "@/server/features/vault/vault.type";
 import { handleVaultPublicIdCollision } from "@/server/features/vault/vault.util";
 import { CustomException } from "@/shared/exceptions/custom-exception";
 import { generateId } from "@/shared/utils/crypto";
 
 class VaultService {
-  public createLink = async (data: CreateLinkRequest) => {
-    const publicId = await handleVaultPublicIdCollision(() => generateId(DEFAULT_LINK_ID_SIZE));
-    await vaultRepository.create({ content: data.content, publicId });
-    return { publicId };
-  };
-
-  public createNote = async (data: CreateNoteRequest) => {
-    const publicId = await handleVaultPublicIdCollision(() => generateId(DEFAULT_NOTE_ID_SIZE));
+  public create = async (data: CreateVaultRequest, type: number) => {
+    const publicId = await handleVaultPublicIdCollision(() =>
+      generateId(type === VAULT_TYPE_LINK ? DEFAULT_LINK_ID_SIZE : DEFAULT_NOTE_ID_SIZE),
+    );
     await vaultRepository.create({
       publicId,
       content: data.content,
@@ -35,26 +26,20 @@ class VaultService {
     }
     let configs: VaultConfigs | undefined = undefined;
     try {
-      const c = vault.configs;
-      if (c) configs = JSON.parse(c) as VaultConfigs;
+      if (vault.configs) {
+        configs = JSON.parse(vault.configs) as VaultConfigs;
+      }
     } catch (e) {}
 
     return {
+      publicId: id,
       content: vault.content,
       configs,
     };
   };
 
-  public getTopByPublicIdInternal = async (id: string) => {
-    const vault = await vaultRepository.getTopByPublicIdInternal(id);
-    if (!vault) {
-      throw new CustomException();
-    }
-    return vault;
-  };
-
-  public deleteVaultByPublicId = async (id: string, data: DeleteVaultRequest) => {
-    const vault = await vaultRepository.getTopByPublicIdInternal(id);
+  public deleteTopByPublicId = async (id: string, data: DeleteVaultRequest) => {
+    const vault = await vaultRepository.getTopByPublicId(id);
     if (vault.password !== data.password) {
       throw new CustomException();
     }

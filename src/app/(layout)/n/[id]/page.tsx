@@ -1,9 +1,9 @@
 import { NotFound } from "@/client/components/not-found";
 import { NoteDetail } from "@/client/features/notes/note-detail";
-import { vaultRepository } from "@/server/features/vault/vault.repository";
+import { vaultService } from "@/server/features/vault/vault.service";
 
 export default async function DetailPage({ params }: { params: { id: string } }) {
-  const item = await vaultRepository.getTopByPublicId(params.id);
+  const item = await vaultService.getTopByPublicId(params.id);
 
   return <>{!!item ? <NoteDetail item={item} /> : <NotFound />}</>;
 }

@@ -1,19 +1,20 @@
 "use client";
 
-import { createLink } from "@/client/api/vault.api";
+import { createVault } from "@/client/api/vault.api";
 import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
 import fclasses from "@/client/styles/form.module.scss";
+import { VAULT_TYPE_LINK } from "@/server/features/vault/vault.constant";
 import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
-import { CreateLinkFormValues } from "@/server/features/vault/vault.type";
-import { encryptText, generatePassword, generatePasswordConfigs, hashPasswordNoSalt } from "@/shared/utils/crypto";
+import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
+import { encryptText, generateHashConfigs, generatePassword, hashPassword } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, CopyButton, Group, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-const defaultFormValues: CreateLinkFormValues = {
+const defaultFormValues: CreateVaultFormValues = {
   content: "",
   password: "",
 };
@@ -26,7 +27,7 @@ export const LinkAdd = () => {
     reset,
     setValue,
     getValues,
-  } = useForm<CreateLinkFormValues>({
+  } = useForm<CreateVaultFormValues>({
     defaultValues: defaultFormValues,
     reValidateMode: "onSubmit",
     resolver: zodResolver(createLinkFormSchema),
@@ -37,14 +38,14 @@ export const LinkAdd = () => {
   const [shortLinkWithPassword, setShortLinkWithPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleFormSubmit: SubmitHandler<CreateLinkFormValues> = async (data) => {
+  const handleFormSubmit: SubmitHandler<CreateVaultFormValues> = async (data) => {
     try {
       setErrorMessage("");
       setIsLoading(true);
-      const passwordConfigs = generatePasswordConfigs();
-      const hashedPassword = await hashPasswordNoSalt(data.password, passwordConfigs);
-      const encrypted = await encryptText(data.content, hashedPassword);
-      const body = await createLink({ content: encrypted || "", configs: { password: passwordConfigs } });
+      const hashConfigs = generateHashConfigs();
+      const hashedPassword = await hashPassword(data.password!, hashConfigs);
+      const encrypted = await encryptText(data.content!, hashedPassword);
+      const body = await createVault({ content: encrypted || "", configs: { hash: hashConfigs } }, VAULT_TYPE_LINK);
       reset({ password: "" });
       addPassword(hashedPassword);
       const shortLink = window.location.origin + `/s/${body.publicId}`;

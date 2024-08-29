@@ -6,7 +6,7 @@ import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { useAppStore } from "@/client/stores/app.store";
 import { decryptVaultFormSchema } from "@/server/features/vault/vault.schema";
 import { DecryptVaultFormValues, VaultConfigs } from "@/server/features/vault/vault.type";
-import { decryptTextWithPassword, hashPasswordNoSalt } from "@/shared/utils/crypto";
+import { decryptText, hashPassword } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Modal, PasswordInput } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";
@@ -29,19 +29,22 @@ const decryptContent = async (
 ): Promise<{ status: "success"; raw: string; password: string; url: string } | { status: "fail" }> => {
   if (!content || !passwords?.size) return { status: "fail" };
   try {
-    const promises: ReturnType<typeof decryptTextWithPassword>[] = [];
-    passwords?.forEach((password) => {
+    const promises: ReturnType<typeof decryptText>[] = [];
+    const passwordsArr = Array.from(passwords);
+    passwordsArr.forEach((password) => {
       if (!password) return;
-      promises.push(decryptTextWithPassword(content, password));
+      promises.push(decryptText(content, password));
     });
     const decryptedResult = await Promise.allSettled(promises);
     let decryptedContent = "";
     let decryptPassword = "";
-    decryptedResult.forEach((x, i) => {
-      if (x.status !== "fulfilled" || x.value.error) return;
-      decryptedContent = x.value.content;
-      decryptPassword = x.value.password;
-    });
+    for (let i = 0; i < decryptedResult.length; i++) {
+      const x = decryptedResult[i];
+      if (x.status !== "fulfilled" || !x.value) continue;
+      decryptedContent = x.value;
+      decryptPassword = passwordsArr[i]!;
+      break;
+    }
     if (!decryptedContent) {
       return { status: "fail" };
     } else {
@@ -92,7 +95,7 @@ export const LinkDetail = ({ item }: Props) => {
       window.location.href = rawResult.url;
       return;
     }
-    const password = await hashPasswordNoSalt(data.password, item.configs?.password);
+    const password = await hashPassword(data.password, item.configs?.hash!);
     const hashedResult = await decryptContent(item.content || "", new Set([password]));
     if (hashedResult.status === "success") {
       addPassword(hashedResult.password);

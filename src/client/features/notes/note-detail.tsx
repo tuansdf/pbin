@@ -3,6 +3,7 @@
 import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { VaultDeleteModal } from "@/client/features/vaults/vault-delete-modal";
+import { VaultConfigs } from "@/server/features/vault/vault.type";
 import { decryptText } from "@/shared/utils/crypto";
 import { Button, Group, Textarea } from "@mantine/core";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import { useCallback, useEffect, useState } from "react";
 type Props = {
   item: {
     content: string | null;
+    configs?: VaultConfigs;
   };
 };
 
@@ -49,7 +51,7 @@ export const NoteDetail = ({ item }: Props) => {
         <Button component={Link} href="/n-add">
           New paste
         </Button>
-        <VaultDeleteModal id={id} />
+        <VaultDeleteModal id={id} hashConfigs={item.configs?.hash} />
       </Group>
       <form>{decrypted ? <Textarea value={decrypted} readOnly rows={30} /> : <ErrorMessage />}</form>
     </>

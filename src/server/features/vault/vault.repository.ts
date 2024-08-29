@@ -14,23 +14,11 @@ class VaultRepository {
     return result > 0;
   };
 
-  public getTopByPublicId = async (publicId: string) => {
-    const result = await db
-      .select({
-        content: VaultTable.content,
-        configs: VaultTable.configs,
-      })
-      .from(VaultTable)
-      .where(eq(VaultTable.publicId, publicId))
-      .limit(1);
-    return result?.[0];
-  };
-
   public deleteById = async (id: number) => {
     await db.delete(VaultTable).where(eq(VaultTable.id, id));
   };
 
-  public getTopByPublicIdInternal = async (publicId: string) => {
+  public getTopByPublicId = async (publicId: string) => {
     const result = await db.select().from(VaultTable).where(eq(VaultTable.publicId, publicId)).limit(1);
     return result?.[0];
   };

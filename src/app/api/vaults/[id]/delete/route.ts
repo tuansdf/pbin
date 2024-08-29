@@ -6,7 +6,7 @@ export const POST = async (request: Request, { params }: { params: { id: string 
   try {
     const id = params.id;
     const data = await deleteVaultSchema.parseAsync(await request.json());
-    await vaultService.deleteVaultByPublicId(id, data);
+    await vaultService.deleteTopByPublicId(id, data);
     return Response.json(null);
   } catch (e) {
     const [status, response] = exceptionUtils.getResponse(e as Error);

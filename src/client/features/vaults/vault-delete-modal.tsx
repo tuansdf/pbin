@@ -1,21 +1,22 @@
-import { deleteVault, getVaultConfigs } from "@/client/api/vault.api";
+import { deleteVault } from "@/client/api/vault.api";
 import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { deleteVaultSchema } from "@/server/features/vault/vault.schema";
+import { HashConfigs } from "@/server/features/vault/vault.type";
 import { hashPassword } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, LoadingOverlay, Modal, PasswordInput } from "@mantine/core";
+import { Box, Button, Modal, PasswordInput } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import useSWR from "swr";
 
 type Props = {
   id: string;
+  hashConfigs?: HashConfigs;
 };
 
-export const VaultDeleteModal = ({ id }: Props) => {
+export const VaultDeleteModal = ({ id, hashConfigs }: Props) => {
   const [opened, { close, open }] = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,7 +27,14 @@ export const VaultDeleteModal = ({ id }: Props) => {
       </Button>
 
       <Modal opened={opened} onClose={close} title="Delete">
-        {opened && <VaultDeleteModalContent id={id} isLoading={isLoading} setIsLoading={setIsLoading} />}
+        {opened && (
+          <VaultDeleteModalContent
+            id={id}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+            hashConfigs={hashConfigs}
+          />
+        )}
       </Modal>
 
       <ScreenLoading isLoading={isLoading} />
@@ -44,9 +52,10 @@ const defaultFormValues: FormValues = {
 type ContentProps = {
   isLoading: boolean;
   setIsLoading: (a: boolean) => void;
+  hashConfigs?: HashConfigs;
 } & Props;
 
-const VaultDeleteModalContent = ({ id, isLoading, setIsLoading }: ContentProps) => {
+const VaultDeleteModalContent = ({ id, isLoading, setIsLoading, hashConfigs }: ContentProps) => {
   const router = useRouter();
   const [isError, setIsError] = useState(false);
   const {
@@ -57,18 +66,12 @@ const VaultDeleteModalContent = ({ id, isLoading, setIsLoading }: ContentProps) 
     defaultValues: defaultFormValues,
     resolver: zodResolver(deleteVaultSchema),
   });
-  const configsQuery = useSWR(`vaults.${id}.configs`, () => getVaultConfigs(id));
-
-  const configs = configsQuery.data?.configs;
 
   const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       setIsLoading(true);
       setIsError(false);
-      if (!configs || !Object.keys(configs).length) {
-        throw new Error();
-      }
-      const password = await hashPassword(data.password, configs.password);
+      const password = await hashPassword(data.password, hashConfigs!);
       await deleteVault(id, { password });
       router.push("/n-add");
     } catch (e) {
@@ -94,8 +97,6 @@ const VaultDeleteModalContent = ({ id, isLoading, setIsLoading }: ContentProps) 
       </form>
 
       {isError && <ErrorMessage mt="md" />}
-
-      <LoadingOverlay visible={configsQuery.isLoading} />
     </Box>
   );
 };

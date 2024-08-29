@@ -1,17 +1,15 @@
 import {
-  CreateLinkFormValues,
-  CreateLinkRequest,
-  CreateNoteFormValues,
-  CreateNoteRequest,
+  CreateVaultFormValues,
+  CreateVaultRequest,
   DecryptVaultFormValues,
   DeleteVaultRequest,
-  PasswordConfigs,
+  HashConfigs,
   VaultConfigs,
 } from "@/server/features/vault/vault.type";
 import { passwordSchema, stringOrUndefined } from "@/shared/schemas/common.schema";
 import { z } from "zod";
 
-const passwordConfigsSchema: z.ZodType<PasswordConfigs> = z.object(
+const passwordConfigsSchema: z.ZodType<HashConfigs> = z.object(
   {
     keySize: z.number({
       required_error: "Invalid key size",
@@ -36,7 +34,7 @@ const passwordConfigsSchema: z.ZodType<PasswordConfigs> = z.object(
 
 const vaultConfigsSchema: z.ZodType<VaultConfigs> = z.object(
   {
-    password: passwordConfigsSchema,
+    hash: passwordConfigsSchema,
   },
   { required_error: "Configs is required", invalid_type_error: "Invalid configs" },
 );
@@ -54,12 +52,7 @@ const urlSchema = z
   })
   .url("Invalid URL");
 
-export const createLinkSchema: z.ZodType<CreateLinkRequest> = z.object({
-  content: contentSchema,
-  configs: vaultConfigsSchema,
-});
-
-export const createNoteSchema: z.ZodType<CreateNoteRequest> = z.object({
+export const createVaultRequestSchema: z.ZodType<CreateVaultRequest> = z.object({
   content: contentSchema,
   password: passwordSchema.optional(),
   configs: vaultConfigsSchema,
@@ -69,12 +62,12 @@ export const deleteVaultSchema: z.ZodType<DeleteVaultRequest> = z.object({
   password: passwordSchema,
 });
 
-export const createLinkFormSchema: z.ZodType<CreateLinkFormValues> = z.object({
+export const createLinkFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
   content: urlSchema,
   password: passwordSchema,
 });
 
-export const createNoteFormSchema: z.ZodType<CreateNoteFormValues> = z.object({
+export const createNoteFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
   content: contentSchema,
   password: stringOrUndefined.pipe(passwordSchema.optional()),
 });
