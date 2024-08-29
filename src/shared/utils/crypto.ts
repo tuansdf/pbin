@@ -1,4 +1,4 @@
-import { DEFAULT_LINK_ID_SIZE, DEFAULT_PASSWORD_SIZE } from "@/server/features/vault/vault.constant";
+import { DEFAULT_NOTE_ID_SIZE, DEFAULT_PASSWORD_SIZE } from "@/server/features/vault/vault.constant";
 import { HashConfigs } from "@/server/features/vault/vault.type";
 import CryptoJS from "crypto-js";
 import { customAlphabet } from "nanoid";
@@ -21,8 +21,8 @@ export const decryptText = async (content: string, password: string): Promise<st
 };
 
 const idAlphabet = "123456789abcdefghjkmnpqrstuvwxyz";
-const idNano = customAlphabet(idAlphabet, DEFAULT_LINK_ID_SIZE);
-export const generateId = (size: number = DEFAULT_LINK_ID_SIZE) => {
+const idNano = customAlphabet(idAlphabet, DEFAULT_NOTE_ID_SIZE);
+export const generateId = (size: number = DEFAULT_NOTE_ID_SIZE) => {
   return idNano(size);
 };
 
@@ -73,7 +73,7 @@ export const generateHashConfigs = (): HashConfigs => {
   let iterations = DEFAULT_ITERATIONS;
   let saltSize = DEFAULT_SALT_SIZE;
   let hasher = DEFAULT_HASHER;
-  let salt = CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(saltSize));
+  let salt = CryptoJS.enc.Base64url.stringify(CryptoJS.lib.WordArray.random(saltSize));
   return { keySize, iterations, salt, hasher };
 };
 
@@ -99,7 +99,7 @@ export const hashPassword = async (password: string, configs: HashConfigs): Prom
       hasher,
     });
 
-    return CryptoJS.enc.Hex.stringify(hashed);
+    return CryptoJS.enc.Base64url.stringify(hashed);
   } catch (e) {
     return password;
   }

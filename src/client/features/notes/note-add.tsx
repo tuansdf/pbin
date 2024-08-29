@@ -38,10 +38,11 @@ export const NoteAdd = () => {
 
       // generate password
       const passwordConfigs = generateHashConfigs();
-      let randomPassword = generatePassword();
+      const randomPassword = generatePassword();
+      const hashedPassword = await hashPassword(randomPassword, passwordConfigs);
 
       // encrypt data
-      const encrypted = await encryptText(data.content!, randomPassword);
+      const encrypted = await encryptText(data.content!, hashedPassword);
       let masterPassword = data.password ? await hashPassword(data.password, passwordConfigs) : undefined;
 
       const body = await createVault(
@@ -52,7 +53,7 @@ export const NoteAdd = () => {
         },
         VAULT_TYPE_NOTE,
       );
-      const link = `/n/${body.publicId}#${randomPassword}`;
+      const link = `/n/${body.publicId}#${hashedPassword}`;
       addNoteUrl(window.location.origin + link);
       router.push(link);
     } catch (e) {

@@ -25,6 +25,12 @@ const passwordConfigsSchema: z.ZodType<HashConfigs> = z.object(
         invalid_type_error: "Invalid salt",
       })
       .min(1, "Invalid salt"),
+    hasher: z
+      .string({
+        required_error: "Invalid hasher",
+        invalid_type_error: "Invalid hasher",
+      })
+      .min(1, "Invalid hasher"),
   },
   {
     required_error: "Password configs is required",
