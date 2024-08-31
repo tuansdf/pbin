@@ -77,22 +77,17 @@ export const generateHashConfigs = (): HashConfigs => {
   return { keySize, iterations, salt, hasher };
 };
 
+const hasherMap: Record<string, typeof CryptoJS.algo.SHA1> = {
+  SHA1: CryptoJS.algo.SHA1,
+  SHA256: CryptoJS.algo.SHA256,
+  SHA512: CryptoJS.algo.SHA512,
+};
+
 export const hashPassword = async (password: string, configs: HashConfigs): Promise<string> => {
   try {
     await new Promise((r) => setTimeout(r, 1000));
 
-    let hasher = CryptoJS.algo.SHA256;
-    switch (configs.hasher) {
-      case "SHA1":
-        hasher = CryptoJS.algo.SHA1;
-        break;
-      case "SHA256":
-        hasher = CryptoJS.algo.SHA256;
-        break;
-      case "SHA512":
-        hasher = CryptoJS.algo.SHA512;
-        break;
-    }
+    const hasher = hasherMap[configs.hasher || ""] || CryptoJS.algo.SHA256;
     const hashed: CryptoJS.lib.WordArray = CryptoJS.PBKDF2(password, configs.salt!, {
       keySize: configs.keySize,
       iterations: configs.iterations,
