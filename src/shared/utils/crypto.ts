@@ -67,7 +67,7 @@ export const generateRandomAndHandleCollision = async ({
 const DEFAULT_KEY_SIZE = 128 / 8;
 const DEFAULT_SALT_SIZE = 256 / 32;
 const DEFAULT_ITERATIONS = 100_000;
-const DEFAULT_HASHER = "SHA256";
+const DEFAULT_HASHER = "SHA-256";
 export const generateHashConfigs = (): HashConfigs => {
   let keySize = DEFAULT_KEY_SIZE;
   let iterations = DEFAULT_ITERATIONS;
@@ -78,9 +78,9 @@ export const generateHashConfigs = (): HashConfigs => {
 };
 
 const hasherMap: Record<string, typeof CryptoJS.algo.SHA1> = {
-  SHA1: CryptoJS.algo.SHA1,
-  SHA256: CryptoJS.algo.SHA256,
-  SHA512: CryptoJS.algo.SHA512,
+  ["SHA-1"]: CryptoJS.algo.SHA1,
+  ["SHA-256"]: CryptoJS.algo.SHA256,
+  ["SHA-512"]: CryptoJS.algo.SHA512,
 };
 
 export const hashPassword = async (password: string, configs: HashConfigs): Promise<string> => {
@@ -88,11 +88,13 @@ export const hashPassword = async (password: string, configs: HashConfigs): Prom
     await new Promise((r) => setTimeout(r, 1000));
 
     const hasher = hasherMap[configs.hasher || ""] || CryptoJS.algo.SHA256;
+    console.time("HPERF");
     const hashed: CryptoJS.lib.WordArray = CryptoJS.PBKDF2(password, configs.salt!, {
       keySize: configs.keySize,
       iterations: configs.iterations,
       hasher,
     });
+    console.timeEnd("HPERF");
 
     return CryptoJS.enc.Base64url.stringify(hashed);
   } catch (e) {

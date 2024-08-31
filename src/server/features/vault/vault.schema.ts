@@ -70,7 +70,7 @@ export const deleteVaultSchema: z.ZodType<DeleteVaultRequest> = z.object({
 
 export const createLinkFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
   content: urlSchema,
-  password: passwordSchema,
+  password: stringOrUndefined.pipe(passwordSchema.optional()),
 });
 
 export const createNoteFormSchema: z.ZodType<CreateVaultFormValues> = z.object({

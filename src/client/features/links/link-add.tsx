@@ -25,8 +25,6 @@ export const LinkAdd = () => {
     register,
     formState: { errors },
     reset,
-    setValue,
-    getValues,
   } = useForm<CreateVaultFormValues>({
     defaultValues: defaultFormValues,
     reValidateMode: "onSubmit",
@@ -43,15 +41,15 @@ export const LinkAdd = () => {
       setErrorMessage("");
       setIsLoading(true);
       const hashConfigs = generateHashConfigs();
-      const hashedPassword = await hashPassword(data.password!, hashConfigs);
-      const encrypted = await encryptText(data.content!, hashedPassword);
+      const password = data.password ? await hashPassword(data.password!, hashConfigs) : generatePassword();
+      const encrypted = await encryptText(data.content!, password);
       const body = await createVault({ content: encrypted || "", configs: { hash: hashConfigs } }, VAULT_TYPE_LINK);
       reset({ password: "" });
-      addPassword(hashedPassword);
+      addPassword(password);
       const shortLink = window.location.origin + `/s/${body.publicId}`;
       addShortUrl(shortLink);
       setShortLink(shortLink);
-      setShortLinkWithPassword(shortLink + `#${hashedPassword}`);
+      setShortLinkWithPassword(shortLink + `#${password}`);
     } catch (e) {
       setErrorMessage("Something Went Wrong");
     } finally {
@@ -62,11 +60,6 @@ export const LinkAdd = () => {
   const resetForm = () => {
     reset();
     setShortLink("");
-  };
-
-  const handlePreSubmit = () => {
-    if (!getValues("content") || getValues("password")) return;
-    setValue("password", generatePassword());
   };
 
   const isSubmitted = !!shortLink;
@@ -130,7 +123,7 @@ export const LinkAdd = () => {
           </>
         )}
         {!isSubmitted && (
-          <Button type="submit" w="max-content" onClick={handlePreSubmit}>
+          <Button type="submit" w="max-content">
             Submit
           </Button>
         )}
