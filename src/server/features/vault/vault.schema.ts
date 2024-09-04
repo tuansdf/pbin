@@ -56,6 +56,7 @@ const urlSchema = z
     required_error: "Invalid URL",
     invalid_type_error: "Invalid URL",
   })
+  .startsWith("https://", "Invalid URL")
   .url("Invalid URL");
 
 export const createVaultRequestSchema: z.ZodType<CreateVaultRequest> = z.object({

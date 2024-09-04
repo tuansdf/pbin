@@ -48,6 +48,7 @@ const decryptContent = async (
     if (!decryptedContent) {
       return { status: "fail" };
     } else {
+      if (!decryptedContent.startsWith("https://")) throw new Error();
       const url = new URL(decryptedContent);
       return { status: "success", raw: decryptedContent, password: decryptPassword, url: url.toString() };
     }
