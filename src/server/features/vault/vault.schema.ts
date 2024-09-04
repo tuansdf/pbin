@@ -9,6 +9,9 @@ import {
 import { passwordSchema, stringOrUndefined } from "@/shared/schemas/common.schema";
 import { z } from "zod";
 
+const MAX_CONTENT_SERVER = 20000;
+const MAX_CONTENT_CLIENT = 12000;
+
 const passwordConfigsSchema: z.ZodType<HashConfigs> = z.object(
   {
     keySize: z.number({
@@ -60,7 +63,7 @@ const urlSchema = z
   .url("Invalid URL");
 
 export const createVaultRequestSchema: z.ZodType<CreateVaultRequest> = z.object({
-  content: contentSchema,
+  content: contentSchema.max(MAX_CONTENT_SERVER, "Invalid content"),
   password: passwordSchema.optional(),
   configs: vaultConfigsSchema,
 });
@@ -75,7 +78,7 @@ export const createLinkFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
 });
 
 export const createNoteFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
-  content: contentSchema,
+  content: contentSchema.max(MAX_CONTENT_CLIENT, "Too long"),
   password: stringOrUndefined.pipe(passwordSchema.optional()),
 });
 
