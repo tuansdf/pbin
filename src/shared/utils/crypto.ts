@@ -66,7 +66,7 @@ export const generateRandomAndHandleCollision = async ({
 
 const DEFAULT_KEY_SIZE = 128 / 8;
 const DEFAULT_SALT_SIZE = 256 / 32;
-const DEFAULT_ITERATIONS = 100_000;
+const DEFAULT_ITERATIONS = 10_000;
 const DEFAULT_HASHER = "SHA-256";
 export const generateHashConfigs = (): HashConfigs => {
   let keySize = DEFAULT_KEY_SIZE;
