@@ -29,27 +29,39 @@ export const AppShell = ({ children }: Props) => {
       </AppShellM.Header>
 
       <AppShellM.Navbar p="sm">
-        <NavLink href="/n-add" label="Create a note" component={Link} active={pathname === "/n-add"} onClick={close} />
         <NavLink
-          href="/n-history"
+          href="/create-note"
+          label="Create a note"
+          component={Link}
+          active={pathname === "/create-note"}
+          onClick={close}
+        />
+        <NavLink
+          href="/note-history"
           label="Note history"
           component={Link}
-          active={pathname === "/n-history"}
+          active={pathname === "/note-history"}
           onClick={close}
         />
-        <NavLink href="/s-add" label="Shorten a URL" component={Link} active={pathname === "/s-add"} onClick={close} />
         <NavLink
-          href="/s-history"
+          href="/create-link"
+          label="Shorten a URL"
+          component={Link}
+          active={pathname === "/create-link"}
+          onClick={close}
+        />
+        <NavLink
+          href="/link-history"
           label="URL history"
           component={Link}
-          active={pathname === "/s-history"}
+          active={pathname === "/link-history"}
           onClick={close}
         />
         <NavLink
-          href="/p-history"
+          href="/password-history"
           label="Password history"
           component={Link}
-          active={pathname === "/p-history"}
+          active={pathname === "/password-history"}
           onClick={close}
         />
       </AppShellM.Navbar>

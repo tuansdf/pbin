@@ -48,7 +48,7 @@ export const NoteDetail = ({ item }: Props) => {
   return (
     <>
       <Group mb="md">
-        <Button component={Link} href="/n-add">
+        <Button component={Link} href="/create-note">
           New paste
         </Button>
         <VaultDeleteModal id={id} hashConfigs={item.configs?.hash} />
