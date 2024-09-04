@@ -5,6 +5,6 @@ export const passwordSchema = z
     required_error: "Password is required",
     invalid_type_error: "Invalid password",
   })
-  .min(10, "Must have at least 10 characters");
+  .min(12, "Must have at least 12 characters");
 
 export const stringOrUndefined = z.string().transform((v) => v || undefined);

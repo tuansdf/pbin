@@ -71,7 +71,6 @@ export const LinkAdd = () => {
         padding="lg"
         radius="md"
         pos="relative"
-        withBorder
         component="form"
         onSubmit={handleSubmit(handleFormSubmit)}
         className={fclasses["form"]}
