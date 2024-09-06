@@ -17,6 +17,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 const defaultFormValues: CreateVaultFormValues = {
   content: "",
   password: "",
+  masterPassword: "",
 };
 
 export const LinkAdd = () => {
@@ -41,9 +42,13 @@ export const LinkAdd = () => {
       setErrorMessage("");
       setIsLoading(true);
       const hashConfigs = generateHashConfigs();
-      const password = data.password ? await hashPassword(data.password!, hashConfigs) : generatePassword();
+      const password = data.password ? await hashPassword(data.password, hashConfigs) : generatePassword();
+      const masterPassword = data.masterPassword ? await hashPassword(data.masterPassword, hashConfigs) : undefined;
       const encrypted = await encryptText(data.content!, password);
-      const body = await createVault({ content: encrypted || "", configs: { hash: hashConfigs } }, VAULT_TYPE_LINK);
+      const body = await createVault(
+        { content: encrypted || "", configs: { hash: hashConfigs }, password: masterPassword },
+        VAULT_TYPE_LINK,
+      );
       reset({ password: "" });
       addPassword(password);
       const shortLink = window.location.origin + `/s/${body.publicId}`;
@@ -88,14 +93,24 @@ export const LinkAdd = () => {
           error={errors.content?.message}
         />
         {!isSubmitted && (
-          <PasswordInput
-            type="password"
-            autoComplete="current-password"
-            label="Password"
-            {...register("password")}
-            error={errors.password?.message}
-            description="Random password will be generated when left empty"
-          />
+          <>
+            <PasswordInput
+              type="password"
+              autoComplete="current-password"
+              label="Password"
+              {...register("password")}
+              error={errors.password?.message}
+              description="Random password will be generated when left empty"
+            />
+            <PasswordInput
+              type="password"
+              autoComplete="current-password"
+              label="Master Password"
+              {...register("masterPassword")}
+              error={errors.masterPassword?.message}
+              description="To perform update/delete"
+            />
+          </>
         )}
         {isSubmitted && (
           <>

@@ -3,7 +3,8 @@ import { vaultRepository } from "@/server/features/vault/vault.repository";
 import { CreateVaultRequest, DeleteVaultRequest, VaultConfigs } from "@/server/features/vault/vault.type";
 import { handleVaultPublicIdCollision } from "@/server/features/vault/vault.util";
 import { CustomException } from "@/shared/exceptions/custom-exception";
-import { generateId, hashPassword } from "@/shared/utils/crypto";
+import { generateFakeContent } from "@/shared/utils/common.util";
+import { generateFakeHashConfigs, generateId, hashPassword } from "@/shared/utils/crypto";
 
 class VaultService {
   public create = async (data: CreateVaultRequest, type: number) => {
@@ -20,10 +21,16 @@ class VaultService {
     return { publicId };
   };
 
-  public getTopByPublicId = async (id: string) => {
+  public getTopByPublicId = async (
+    id: string,
+  ): Promise<{ publicId: string; content: string | null; configs?: VaultConfigs }> => {
     const vault = await vaultRepository.getTopByPublicId(id);
     if (!vault) {
-      throw new CustomException();
+      return {
+        publicId: id,
+        content: generateFakeContent(id),
+        configs: { hash: generateFakeHashConfigs(id) },
+      };
     }
     let configs = this.parseVaultConfigs(vault.configs!);
 
@@ -34,7 +41,7 @@ class VaultService {
     };
   };
 
-  private parseVaultConfigs = (configs?: string): VaultConfigs | undefined => {
+  private parseVaultConfigs = (configs?: string | null): VaultConfigs | undefined => {
     try {
       if (configs) {
         return JSON.parse(configs) as VaultConfigs;
@@ -42,8 +49,25 @@ class VaultService {
     } catch (e) {}
   };
 
+  public getVaultConfigs = async (id: string): Promise<VaultConfigs> => {
+    const vault = await vaultRepository.getTopByPublicId(id);
+    if (!vault) {
+      return {
+        hash: generateFakeHashConfigs(id),
+      };
+    }
+    const configs = this.parseVaultConfigs(vault.configs);
+    if (configs) return configs;
+    return {
+      hash: generateFakeHashConfigs(id),
+    };
+  };
+
   public deleteTopByPublicId = async (id: string, data: DeleteVaultRequest) => {
     const vault = await vaultRepository.getTopByPublicId(id);
+    if (!data.password) {
+      throw new CustomException();
+    }
     const reqPassword = await hashPassword(data.password, this.parseVaultConfigs(vault.configs!)?.hash!);
     if (vault.password !== reqPassword) {
       throw new CustomException();

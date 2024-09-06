@@ -51,7 +51,7 @@ export const NoteDetail = ({ item }: Props) => {
         <Button component={Link} href="/create-note">
           New paste
         </Button>
-        <VaultDeleteModal id={id} hashConfigs={item.configs?.hash} />
+        <VaultDeleteModal id={id} />
       </Group>
       <form>{decrypted ? <Textarea value={decrypted} readOnly rows={30} /> : <ErrorMessage />}</form>
     </>

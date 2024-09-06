@@ -2,6 +2,7 @@ import {
   CreateVaultFormValues,
   CreateVaultRequest,
   DecryptVaultFormValues,
+  DeleteVaultFormValues,
   DeleteVaultRequest,
   HashConfigs,
   VaultConfigs,
@@ -48,6 +49,12 @@ const vaultConfigsSchema: z.ZodType<VaultConfigs> = z.object(
   { required_error: "Configs is required", invalid_type_error: "Invalid configs" },
 );
 
+const idSchema = z
+  .string({
+    required_error: "Invalid ID",
+    invalid_type_error: "Invalid ID",
+  })
+  .min(1, "Missing ID");
 const contentSchema = z
   .string({
     required_error: "Invalid content",
@@ -72,9 +79,14 @@ export const deleteVaultSchema: z.ZodType<DeleteVaultRequest> = z.object({
   password: passwordSchema,
 });
 
+export const deleteVaultFormSchema: z.ZodType<DeleteVaultFormValues> = z.object({
+  password: passwordSchema,
+});
+
 export const createLinkFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
   content: urlSchema,
   password: stringOrUndefined.pipe(passwordSchema.optional()),
+  masterPassword: stringOrUndefined.pipe(passwordSchema.optional()),
 });
 
 export const createNoteFormSchema: z.ZodType<CreateVaultFormValues> = z.object({

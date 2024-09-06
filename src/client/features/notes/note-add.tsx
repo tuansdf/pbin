@@ -80,7 +80,7 @@ export const NoteAdd = () => {
             mt="md"
             label="Master password"
             autoComplete="current-password"
-            description="To edit or delete it later"
+            description="To perform update/delete"
             {...register("password")}
             error={errors.password?.message}
           />

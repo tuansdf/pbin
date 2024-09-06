@@ -27,9 +27,14 @@ export type CreateVaultResponse = {
 export type CreateVaultFormValues = {
   content?: string;
   password?: string;
+  masterPassword?: string;
 };
 
 export type DeleteVaultRequest = {
+  password: string;
+};
+
+export type DeleteVaultFormValues = {
   password: string;
 };
 

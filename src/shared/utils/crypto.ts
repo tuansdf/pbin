@@ -76,6 +76,13 @@ export const generateHashConfigs = (): HashConfigs => {
   let salt = CryptoJS.enc.Base64url.stringify(CryptoJS.lib.WordArray.random(saltSize));
   return { keySize, iterations, salt, hasher };
 };
+export const generateFakeHashConfigs = (base: string): HashConfigs => {
+  let keySize = DEFAULT_KEY_SIZE;
+  let iterations = DEFAULT_ITERATIONS;
+  let hasher = DEFAULT_HASHER;
+  let salt = createHash(base).substring(0, DEFAULT_SALT_SIZE);
+  return { keySize, iterations, salt, hasher };
+};
 
 const hasherMap: Record<string, typeof CryptoJS.algo.SHA1> = {
   ["SHA-1"]: CryptoJS.algo.SHA1,
@@ -100,4 +107,8 @@ export const hashPassword = async (password: string, configs: HashConfigs): Prom
   } catch (e) {
     return password;
   }
+};
+
+export const createHash = (input: string) => {
+  return CryptoJS.enc.Base64url.stringify(CryptoJS.SHA256(input));
 };
