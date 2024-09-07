@@ -1,4 +1,13 @@
-import { DEFAULT_LINK_ID_SIZE, DEFAULT_NOTE_ID_SIZE, VAULT_TYPE_LINK } from "@/server/features/vault/vault.constant";
+import {
+  DEFAULT_LINK_ID_SIZE,
+  DEFAULT_NOTE_ID_SIZE,
+  VAULT_EXPIRE_1_DAY,
+  VAULT_EXPIRE_1_HOUR,
+  VAULT_EXPIRE_1_MONTH,
+  VAULT_EXPIRE_1_WEEK,
+  VAULT_EXPIRE_1_YEAR,
+  VAULT_TYPE_LINK,
+} from "@/server/features/vault/vault.constant";
 import { vaultRepository } from "@/server/features/vault/vault.repository";
 import { CreateVaultRequest, DeleteVaultRequest, VaultConfigs } from "@/server/features/vault/vault.type";
 import { handleVaultPublicIdCollision } from "@/server/features/vault/vault.util";
@@ -9,6 +18,28 @@ import dayjs from "dayjs";
 
 class VaultService {
   public create = async (data: CreateVaultRequest, type: number) => {
+    let expiresAt: number | undefined = undefined;
+    const sysdate = dayjs();
+    switch (data.expiresAt) {
+      case VAULT_EXPIRE_1_HOUR:
+        expiresAt = sysdate.add(1, "hour").unix();
+        break;
+      case VAULT_EXPIRE_1_DAY:
+        expiresAt = sysdate.add(1, "day").unix();
+        break;
+      case VAULT_EXPIRE_1_WEEK:
+        expiresAt = sysdate.add(1, "week").unix();
+        break;
+      case VAULT_EXPIRE_1_MONTH:
+        expiresAt = sysdate.add(1, "month").unix();
+        break;
+      case VAULT_EXPIRE_1_YEAR:
+        expiresAt = sysdate.add(1, "year").unix();
+        break;
+      default:
+        expiresAt = sysdate.add(1, "year").unix();
+    }
+
     const publicId = await handleVaultPublicIdCollision(() =>
       generateId(type === VAULT_TYPE_LINK ? DEFAULT_LINK_ID_SIZE : DEFAULT_NOTE_ID_SIZE),
     );
@@ -18,7 +49,7 @@ class VaultService {
       content: data.content,
       masterPassword: hashedPassword,
       configs: JSON.stringify(data.configs),
-      expiresAt: dayjs().add(1, "year").unix(),
+      expiresAt,
     });
     return { publicId };
   };

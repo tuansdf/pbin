@@ -5,12 +5,19 @@ import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
 import fclasses from "@/client/styles/form.module.scss";
-import { VAULT_TYPE_LINK } from "@/server/features/vault/vault.constant";
+import {
+  VAULT_EXPIRE_1_DAY,
+  VAULT_EXPIRE_1_HOUR,
+  VAULT_EXPIRE_1_MONTH,
+  VAULT_EXPIRE_1_WEEK,
+  VAULT_EXPIRE_1_YEAR,
+  VAULT_TYPE_LINK,
+} from "@/server/features/vault/vault.constant";
 import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
 import { encryptText, generateHashConfigs, generatePassword, hashPassword } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Card, CopyButton, Group, PasswordInput, TextInput, Title } from "@mantine/core";
+import { Button, Card, CopyButton, Group, NativeSelect, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -18,6 +25,7 @@ const defaultFormValues: CreateVaultFormValues = {
   content: "",
   password: "",
   masterPassword: "",
+  expiresAt: VAULT_EXPIRE_1_YEAR,
 };
 
 export const LinkAdd = () => {
@@ -49,7 +57,12 @@ export const LinkAdd = () => {
       const [password, masterPassword] = await Promise.all(promises);
       const encrypted = await encryptText(data.content!, password);
       const body = await createVault(
-        { content: encrypted || "", configs: { hash: hashConfigs }, masterPassword: masterPassword },
+        {
+          content: encrypted || "",
+          configs: { hash: hashConfigs },
+          masterPassword: masterPassword,
+          expiresAt: data.expiresAt,
+        },
         VAULT_TYPE_LINK,
       );
       reset({ password: "" });
@@ -108,11 +121,12 @@ export const LinkAdd = () => {
             <PasswordInput
               type="password"
               autoComplete="current-password"
-              label="Master Password"
+              label="Master password"
               {...register("masterPassword")}
               error={errors.masterPassword?.message}
               description="To perform update/delete"
             />
+            <NativeSelect label="Expires after" data={expireOptions} {...register("expiresAt")} />
           </>
         )}
         {isSubmitted && (
@@ -157,3 +171,26 @@ export const LinkAdd = () => {
     </>
   );
 };
+
+const expireOptions = [
+  {
+    value: String(VAULT_EXPIRE_1_HOUR),
+    label: "1 hour",
+  },
+  {
+    value: String(VAULT_EXPIRE_1_DAY),
+    label: "1 day",
+  },
+  {
+    value: String(VAULT_EXPIRE_1_WEEK),
+    label: "1 week",
+  },
+  {
+    value: String(VAULT_EXPIRE_1_MONTH),
+    label: "1 month",
+  },
+  {
+    value: String(VAULT_EXPIRE_1_YEAR),
+    label: "1 year",
+  },
+];

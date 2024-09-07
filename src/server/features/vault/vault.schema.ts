@@ -73,6 +73,7 @@ export const createVaultRequestSchema: z.ZodType<CreateVaultRequest> = z.object(
   content: contentSchema.max(MAX_CONTENT_SERVER, "Invalid content"),
   masterPassword: passwordSchema.optional(),
   configs: vaultConfigsSchema,
+  expiresAt: z.coerce.number().optional(),
 });
 
 export const deleteVaultSchema: z.ZodType<DeleteVaultRequest> = z.object({
@@ -87,11 +88,13 @@ export const createLinkFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
   content: urlSchema,
   password: stringOrUndefined.pipe(passwordSchema.optional()),
   masterPassword: stringOrUndefined.pipe(passwordSchema.optional()),
+  expiresAt: z.coerce.number().optional(),
 });
 
 export const createNoteFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
   content: contentSchema.max(MAX_CONTENT_CLIENT, "Too long"),
   masterPassword: stringOrUndefined.pipe(passwordSchema.optional()),
+  expiresAt: z.coerce.number().optional(),
 });
 
 export const decryptVaultFormSchema: z.ZodType<DecryptVaultFormValues> = z.object({

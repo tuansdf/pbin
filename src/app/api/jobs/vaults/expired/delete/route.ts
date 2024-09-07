@@ -1,7 +1,7 @@
 import { vaultService } from "@/server/features/vault/vault.service";
 import { exceptionUtils } from "@/shared/exceptions/exception.util";
 
-export const POST = async () => {
+export const GET = async () => {
   try {
     await vaultService.deleteExpiredVaults();
     return Response.json(null);

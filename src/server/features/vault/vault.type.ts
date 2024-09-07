@@ -18,6 +18,7 @@ export type CreateVaultRequest = {
   content: string;
   configs: VaultConfigs;
   masterPassword?: string;
+  expiresAt?: number;
 };
 
 export type CreateVaultResponse = {
@@ -28,6 +29,7 @@ export type CreateVaultFormValues = {
   content?: string;
   password?: string;
   masterPassword?: string;
+  expiresAt?: number;
 };
 
 export type DeleteVaultRequest = {

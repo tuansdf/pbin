@@ -3,19 +3,27 @@
 import { createVault } from "@/client/api/vault.api";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
-import { VAULT_TYPE_NOTE } from "@/server/features/vault/vault.constant";
+import {
+  VAULT_EXPIRE_1_DAY,
+  VAULT_EXPIRE_1_HOUR,
+  VAULT_EXPIRE_1_MONTH,
+  VAULT_EXPIRE_1_WEEK,
+  VAULT_EXPIRE_1_YEAR,
+  VAULT_TYPE_NOTE,
+} from "@/server/features/vault/vault.constant";
 import { createNoteFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
 import { encryptText, generateHashConfigs, generatePassword, hashPassword } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, PasswordInput, Textarea, Title } from "@mantine/core";
+import { Box, Button, NativeSelect, PasswordInput, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 const defaultFormValues: CreateVaultFormValues = {
   content: "",
-  masterPassword: undefined,
+  masterPassword: "",
+  expiresAt: VAULT_EXPIRE_1_YEAR,
 };
 
 export const NoteAdd = () => {
@@ -49,6 +57,7 @@ export const NoteAdd = () => {
           content: encrypted || "",
           masterPassword: masterPassword,
           configs: { hash: passwordConfigs },
+          expiresAt: data.expiresAt,
         },
         VAULT_TYPE_NOTE,
       );
@@ -84,6 +93,7 @@ export const NoteAdd = () => {
             {...register("masterPassword")}
             error={errors.masterPassword?.message}
           />
+          <NativeSelect mt="md" label="Expires after" data={expireOptions} {...register("expiresAt")} />
           <Button mt="md" type="submit">
             Submit
           </Button>
@@ -93,3 +103,26 @@ export const NoteAdd = () => {
     </>
   );
 };
+
+const expireOptions = [
+  {
+    value: String(VAULT_EXPIRE_1_HOUR),
+    label: "1 hour",
+  },
+  {
+    value: String(VAULT_EXPIRE_1_DAY),
+    label: "1 day",
+  },
+  {
+    value: String(VAULT_EXPIRE_1_WEEK),
+    label: "1 week",
+  },
+  {
+    value: String(VAULT_EXPIRE_1_MONTH),
+    label: "1 month",
+  },
+  {
+    value: String(VAULT_EXPIRE_1_YEAR),
+    label: "1 year",
+  },
+];
