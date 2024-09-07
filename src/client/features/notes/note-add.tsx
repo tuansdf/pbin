@@ -15,7 +15,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 
 const defaultFormValues: CreateVaultFormValues = {
   content: "",
-  password: undefined,
+  masterPassword: undefined,
 };
 
 export const NoteAdd = () => {
@@ -42,12 +42,12 @@ export const NoteAdd = () => {
 
       // encrypt data
       const encrypted = await encryptText(data.content!, randomPassword);
-      let masterPassword = data.password ? await hashPassword(data.password, passwordConfigs) : undefined;
+      let masterPassword = data.masterPassword ? await hashPassword(data.masterPassword, passwordConfigs) : undefined;
 
       const body = await createVault(
         {
           content: encrypted || "",
-          password: masterPassword,
+          masterPassword: masterPassword,
           configs: { hash: passwordConfigs },
         },
         VAULT_TYPE_NOTE,
@@ -81,8 +81,8 @@ export const NoteAdd = () => {
             label="Master password"
             autoComplete="current-password"
             description="To perform update/delete"
-            {...register("password")}
-            error={errors.password?.message}
+            {...register("masterPassword")}
+            error={errors.masterPassword?.message}
           />
           <Button mt="md" type="submit">
             Submit

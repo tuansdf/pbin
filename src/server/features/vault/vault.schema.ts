@@ -71,7 +71,7 @@ const urlSchema = z
 
 export const createVaultRequestSchema: z.ZodType<CreateVaultRequest> = z.object({
   content: contentSchema.max(MAX_CONTENT_SERVER, "Invalid content"),
-  password: passwordSchema.optional(),
+  masterPassword: passwordSchema.optional(),
   configs: vaultConfigsSchema,
 });
 
@@ -91,7 +91,7 @@ export const createLinkFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
 
 export const createNoteFormSchema: z.ZodType<CreateVaultFormValues> = z.object({
   content: contentSchema.max(MAX_CONTENT_CLIENT, "Too long"),
-  password: stringOrUndefined.pipe(passwordSchema.optional()),
+  masterPassword: stringOrUndefined.pipe(passwordSchema.optional()),
 });
 
 export const decryptVaultFormSchema: z.ZodType<DecryptVaultFormValues> = z.object({

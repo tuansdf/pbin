@@ -49,7 +49,7 @@ export const LinkAdd = () => {
       const [password, masterPassword] = await Promise.all(promises);
       const encrypted = await encryptText(data.content!, password);
       const body = await createVault(
-        { content: encrypted || "", configs: { hash: hashConfigs }, password: masterPassword },
+        { content: encrypted || "", configs: { hash: hashConfigs }, masterPassword: masterPassword },
         VAULT_TYPE_LINK,
       );
       reset({ password: "" });

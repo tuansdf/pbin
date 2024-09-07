@@ -1,7 +1,7 @@
 import { db } from "@/server/databases/db";
 import { VaultTable } from "@/server/entities/vault.entity";
 import { VaultCreate } from "@/server/features/vault/vault.type";
-import { count, eq } from "drizzle-orm";
+import { count, eq, lte } from "drizzle-orm";
 
 class VaultRepository {
   public countByPublicId = async (publicId: string) => {
@@ -18,9 +18,13 @@ class VaultRepository {
     await db.delete(VaultTable).where(eq(VaultTable.id, id));
   };
 
-  public getTopByPublicId = async (publicId: string) => {
+  public findTopByPublicId = async (publicId: string) => {
     const result = await db.select().from(VaultTable).where(eq(VaultTable.publicId, publicId)).limit(1);
     return result?.[0];
+  };
+
+  public deleteAllExpiresAtAfter = async (date: number) => {
+    await db.delete(VaultTable).where(lte(VaultTable.expiresAt, date));
   };
 
   public create = async (data: VaultCreate): Promise<{ publicId: string | null }> => {

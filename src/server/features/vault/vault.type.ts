@@ -17,7 +17,7 @@ export type VaultConfigs = {
 export type CreateVaultRequest = {
   content: string;
   configs: VaultConfigs;
-  password?: string;
+  masterPassword?: string;
 };
 
 export type CreateVaultResponse = {
