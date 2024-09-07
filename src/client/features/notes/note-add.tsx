@@ -71,7 +71,7 @@ export const NoteAdd = () => {
             label="Content"
             autoComplete="off"
             autoFocus
-            rows={24}
+            rows={20}
             withAsterisk
             {...register("content")}
             error={errors.content?.message}

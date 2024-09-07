@@ -42,8 +42,11 @@ export const LinkAdd = () => {
       setErrorMessage("");
       setIsLoading(true);
       const hashConfigs = generateHashConfigs();
-      const password = data.password ? await hashPassword(data.password, hashConfigs) : generatePassword();
-      const masterPassword = data.masterPassword ? await hashPassword(data.masterPassword, hashConfigs) : undefined;
+      const promises = [
+        data.password ? hashPassword(data.password, hashConfigs) : generatePassword(),
+        data.masterPassword ? hashPassword(data.masterPassword, hashConfigs) : undefined,
+      ] as const;
+      const [password, masterPassword] = await Promise.all(promises);
       const encrypted = await encryptText(data.content!, password);
       const body = await createVault(
         { content: encrypted || "", configs: { hash: hashConfigs }, password: masterPassword },

@@ -80,7 +80,7 @@ export const generateFakeHashConfigs = (base: string): HashConfigs => {
   let keySize = DEFAULT_KEY_SIZE;
   let iterations = DEFAULT_ITERATIONS;
   let hasher = DEFAULT_HASHER;
-  let salt = createHash(base).substring(0, DEFAULT_SALT_SIZE);
+  let salt = createHash(base).substring(0, 11);
   return { keySize, iterations, salt, hasher };
 };
 

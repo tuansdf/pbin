@@ -122,7 +122,7 @@ export const LinkDetail = ({ item }: Props) => {
       <Modal
         opened={isPasswordOpen}
         onClose={() => {}}
-        title="Decrypt this link"
+        title="Unlock this link"
         withCloseButton={false}
         transitionProps={{ transition: "fade", duration: 0 }}
       >
