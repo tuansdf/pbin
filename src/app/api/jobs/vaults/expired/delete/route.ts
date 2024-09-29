@@ -1,6 +1,8 @@
 import { vaultService } from "@/server/features/vault/vault.service";
 import { exceptionUtils } from "@/shared/exceptions/exception.util";
 
+export const dynamic = "force-dynamic";
+
 export const GET = async () => {
   try {
     const result = await vaultService.deleteExpiredVaults();
