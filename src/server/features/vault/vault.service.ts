@@ -22,22 +22,22 @@ class VaultService {
     const sysdate = dayjs();
     switch (data.expiresAt) {
       case VAULT_EXPIRE_1_HOUR:
-        expiresAt = sysdate.add(1, "hour").unix();
+        expiresAt = sysdate.add(1, "hour").set("millisecond", 0).valueOf();
         break;
       case VAULT_EXPIRE_1_DAY:
-        expiresAt = sysdate.add(1, "day").unix();
+        expiresAt = sysdate.add(1, "day").set("millisecond", 0).valueOf();
         break;
       case VAULT_EXPIRE_1_WEEK:
-        expiresAt = sysdate.add(1, "week").unix();
+        expiresAt = sysdate.add(1, "week").set("millisecond", 0).valueOf();
         break;
       case VAULT_EXPIRE_1_MONTH:
-        expiresAt = sysdate.add(1, "month").unix();
+        expiresAt = sysdate.add(1, "month").set("millisecond", 0).valueOf();
         break;
       case VAULT_EXPIRE_1_YEAR:
-        expiresAt = sysdate.add(1, "year").unix();
+        expiresAt = sysdate.add(1, "year").set("millisecond", 0).valueOf();
         break;
       default:
-        expiresAt = sysdate.add(1, "year").unix();
+        expiresAt = sysdate.add(1, "year").set("millisecond", 0).valueOf();
     }
 
     const publicId = await handleVaultPublicIdCollision(() =>
@@ -75,8 +75,8 @@ class VaultService {
   };
 
   public deleteExpiredVaults = async () => {
-    const date = dayjs().unix();
-    await vaultRepository.deleteAllExpiresAtAfter(date);
+    const date = dayjs().set("millisecond", 0).valueOf();
+    await vaultRepository.deleteAllExpiresAtBefore(date);
     return date;
   };
 

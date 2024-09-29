@@ -23,7 +23,7 @@ class VaultRepository {
     return result?.[0];
   };
 
-  public deleteAllExpiresAtAfter = async (date: number) => {
+  public deleteAllExpiresAtBefore = async (date: number) => {
     await db.delete(VaultTable).where(lte(VaultTable.expiresAt, date));
   };
 
