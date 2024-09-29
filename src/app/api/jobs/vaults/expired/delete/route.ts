@@ -3,8 +3,8 @@ import { exceptionUtils } from "@/shared/exceptions/exception.util";
 
 export const GET = async () => {
   try {
-    await vaultService.deleteExpiredVaults();
-    return Response.json(null);
+    const result = await vaultService.deleteExpiredVaults();
+    return Response.json({ message: result, status: 200 }, { status: 200 });
   } catch (e) {
     const [status, response] = exceptionUtils.getResponse(e as Error);
     return Response.json(response, { status });

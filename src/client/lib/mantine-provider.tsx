@@ -10,7 +10,7 @@ type Props = PropsWithChildren;
 
 export const MantineProvider = ({ children }: Props) => {
   return (
-    <MantineProviderM theme={theme}>
+    <MantineProviderM theme={theme} defaultColorScheme="dark">
       <ModalsProvider>{children}</ModalsProvider>
     </MantineProviderM>
   );

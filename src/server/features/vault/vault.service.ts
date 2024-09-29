@@ -75,7 +75,9 @@ class VaultService {
   };
 
   public deleteExpiredVaults = async () => {
-    await vaultRepository.deleteAllExpiresAtAfter(dayjs().unix());
+    const date = dayjs().unix();
+    await vaultRepository.deleteAllExpiresAtAfter(date);
+    return date;
   };
 
   private parseVaultConfigs = (configs?: string | null): VaultConfigs | undefined => {
