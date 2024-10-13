@@ -4,25 +4,30 @@ import {
   DecryptVaultFormValues,
   DeleteVaultFormValues,
   DeleteVaultRequest,
+  EncryptionConfigs,
   HashConfigs,
   VaultConfigs,
 } from "@/server/features/vault/vault.type";
 import { passwordSchema, stringOrUndefined } from "@/shared/schemas/common.schema";
 import { z } from "zod";
 
-const MAX_CONTENT_SERVER = 20000;
-const MAX_CONTENT_CLIENT = 12000;
+const MAX_CONTENT_SERVER = 15000;
+const MAX_CONTENT_CLIENT = 5000;
 
 const passwordConfigsSchema: z.ZodType<HashConfigs> = z.object(
   {
-    keySize: z.number({
-      required_error: "Invalid key size",
-      invalid_type_error: "Invalid key size",
-    }),
-    iterations: z.number({
-      required_error: "Invalid iterations",
-      invalid_type_error: "Invalid iterations",
-    }),
+    keySize: z
+      .number({
+        required_error: "Invalid key size",
+        invalid_type_error: "Invalid key size",
+      })
+      .min(1, "Invalid key size"),
+    iterations: z
+      .number({
+        required_error: "Invalid iterations",
+        invalid_type_error: "Invalid iterations",
+      })
+      .min(1, "Invalid iterations"),
     salt: z
       .string({
         required_error: "Invalid salt",
@@ -42,9 +47,25 @@ const passwordConfigsSchema: z.ZodType<HashConfigs> = z.object(
   },
 );
 
+const encryptionConfigsSchema: z.ZodType<EncryptionConfigs> = z.object(
+  {
+    nonce: z
+      .string({
+        required_error: "Invalid nonce",
+        invalid_type_error: "Invalid nonce",
+      })
+      .min(1, "Invalid salt"),
+  },
+  {
+    required_error: "Encryption configs is required",
+    invalid_type_error: "Invalid encryption configs",
+  },
+);
+
 const vaultConfigsSchema: z.ZodType<VaultConfigs> = z.object(
   {
     hash: passwordConfigsSchema,
+    encryption: encryptionConfigsSchema,
   },
   { required_error: "Configs is required", invalid_type_error: "Invalid configs" },
 );

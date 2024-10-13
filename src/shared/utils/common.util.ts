@@ -1,13 +1,33 @@
-import { createHash } from "@/shared/utils/crypto";
+const DEFAULT_MAX_RETRIES = 100;
 
-const base64urlAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-
-export const generateFakeContent = (base: string): string => {
-  let result = createHash(base);
-  // plus 2 in case not found, divide by 6 to reduce the number of rounds
-  const rounds = Math.ceil((base64urlAlphabet.indexOf(result[0]) + 2) / 6);
-  for (let i = 0; i < rounds; i++) {
-    result += createHash(result[i]); // shorten the hash input
+export const handleRetry = async <T>({
+  resultFn,
+  shouldRetryFn,
+  maxRetries = DEFAULT_MAX_RETRIES,
+}: {
+  resultFn: () => T | Promise<T>;
+  shouldRetryFn: (text: T) => Promise<boolean>; // true: collision, false: no collision
+  maxRetries?: number;
+}): Promise<T> => {
+  let retryCount = 0;
+  let result: T | null = null;
+  while (!result) {
+    if (retryCount > maxRetries) {
+      throw new Error("Cannot generate ID");
+    }
+    let temp: T | null = null;
+    try {
+      temp = await resultFn();
+      const isRetry = await shouldRetryFn(temp);
+      if (!isRetry) {
+        result = temp;
+      } else {
+        console.error("Collision: " + temp);
+      }
+    } catch (e) {
+      console.error("Collision: " + temp);
+    }
+    retryCount++;
   }
   return result;
 };

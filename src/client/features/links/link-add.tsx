@@ -15,7 +15,13 @@ import {
 } from "@/server/features/vault/vault.constant";
 import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
-import { encryptText, generateHashConfigs, generatePassword, hashPassword } from "@/shared/utils/crypto";
+import {
+  encryptText,
+  generateEncryptionConfigs,
+  generateHashConfigs,
+  generatePassword,
+  hashPassword,
+} from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, CopyButton, Group, NativeSelect, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
@@ -25,7 +31,7 @@ const defaultFormValues: CreateVaultFormValues = {
   content: "",
   password: "",
   masterPassword: "",
-  expiresAt: VAULT_EXPIRE_1_YEAR,
+  expiresAt: VAULT_EXPIRE_1_WEEK,
 };
 
 export const LinkAdd = () => {
@@ -50,16 +56,17 @@ export const LinkAdd = () => {
       setErrorMessage("");
       setIsLoading(true);
       const hashConfigs = generateHashConfigs();
+      const encryptionConfigs = generateEncryptionConfigs();
       const promises = [
         data.password ? hashPassword(data.password, hashConfigs) : generatePassword(),
         data.masterPassword ? hashPassword(data.masterPassword, hashConfigs) : undefined,
       ] as const;
       const [password, masterPassword] = await Promise.all(promises);
-      const encrypted = await encryptText(data.content!, password);
+      const encrypted = await encryptText(data.content!, password, encryptionConfigs.nonce);
       const body = await createVault(
         {
           content: encrypted || "",
-          configs: { hash: hashConfigs },
+          configs: { hash: hashConfigs, encryption: encryptionConfigs },
           masterPassword: masterPassword,
           expiresAt: data.expiresAt,
         },

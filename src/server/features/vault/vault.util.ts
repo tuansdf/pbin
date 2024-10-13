@@ -1,9 +1,9 @@
 import { vaultRepository } from "@/server/features/vault/vault.repository";
-import { generateRandomAndHandleCollision } from "@/shared/utils/crypto";
+import { handleRetry } from "@/shared/utils/common.util";
 
 export const handleVaultPublicIdCollision = async (randomFn: () => string) => {
-  return await generateRandomAndHandleCollision({
-    randomFn,
-    checkCollisionFn: vaultRepository.existsByPublicId,
+  return await handleRetry({
+    resultFn: randomFn,
+    shouldRetryFn: vaultRepository.existsByPublicId,
   });
 };

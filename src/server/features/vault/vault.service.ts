@@ -12,8 +12,13 @@ import { vaultRepository } from "@/server/features/vault/vault.repository";
 import { CreateVaultRequest, DeleteVaultRequest, VaultConfigs } from "@/server/features/vault/vault.type";
 import { handleVaultPublicIdCollision } from "@/server/features/vault/vault.util";
 import { CustomException } from "@/shared/exceptions/custom-exception";
-import { generateFakeContent } from "@/shared/utils/common.util";
-import { generateFakeHashConfigs, generateId, hashPassword } from "@/shared/utils/crypto";
+import {
+  generateFakeContent,
+  generateFakeEncryptionConfigs,
+  generateFakeHashConfigs,
+  generateId,
+  hashPassword,
+} from "@/shared/utils/crypto";
 import dayjs from "dayjs";
 
 class VaultService {
@@ -61,8 +66,8 @@ class VaultService {
     if (!vault) {
       return {
         publicId: id,
-        content: generateFakeContent(id),
-        configs: { hash: generateFakeHashConfigs(id) },
+        content: await generateFakeContent(id),
+        configs: { hash: await generateFakeHashConfigs(id), encryption: await generateFakeEncryptionConfigs(id) },
       };
     }
     let configs = this.parseVaultConfigs(vault.configs!);
@@ -92,13 +97,15 @@ class VaultService {
     const vault = await vaultRepository.findTopByPublicId(id);
     if (!vault) {
       return {
-        hash: generateFakeHashConfigs(id),
+        hash: await generateFakeHashConfigs(id),
+        encryption: await generateFakeEncryptionConfigs(id),
       };
     }
     const configs = this.parseVaultConfigs(vault.configs);
     if (configs) return configs;
     return {
-      hash: generateFakeHashConfigs(id),
+      hash: await generateFakeHashConfigs(id),
+      encryption: await generateFakeEncryptionConfigs(id),
     };
   };
 

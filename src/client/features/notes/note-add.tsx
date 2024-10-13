@@ -13,7 +13,13 @@ import {
 } from "@/server/features/vault/vault.constant";
 import { createNoteFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
-import { encryptText, generateHashConfigs, generatePassword, hashPassword } from "@/shared/utils/crypto";
+import {
+  encryptText,
+  generateEncryptionConfigs,
+  generateHashConfigs,
+  generatePassword,
+  hashPassword,
+} from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, NativeSelect, PasswordInput, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
@@ -23,7 +29,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 const defaultFormValues: CreateVaultFormValues = {
   content: "",
   masterPassword: "",
-  expiresAt: VAULT_EXPIRE_1_YEAR,
+  expiresAt: VAULT_EXPIRE_1_WEEK,
 };
 
 export const NoteAdd = () => {
@@ -46,17 +52,18 @@ export const NoteAdd = () => {
 
       // generate password
       const passwordConfigs = generateHashConfigs();
+      const encryptionConfigs = generateEncryptionConfigs();
       const randomPassword = generatePassword();
 
       // encrypt data
-      const encrypted = await encryptText(data.content!, randomPassword);
+      const encrypted = await encryptText(data.content!, randomPassword, encryptionConfigs.nonce);
       let masterPassword = data.masterPassword ? await hashPassword(data.masterPassword, passwordConfigs) : undefined;
 
       const body = await createVault(
         {
           content: encrypted || "",
           masterPassword: masterPassword,
-          configs: { hash: passwordConfigs },
+          configs: { hash: passwordConfigs, encryption: encryptionConfigs },
           expiresAt: data.expiresAt,
         },
         VAULT_TYPE_NOTE,

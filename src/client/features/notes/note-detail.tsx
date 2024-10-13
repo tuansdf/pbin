@@ -29,14 +29,14 @@ export const NoteDetail = ({ item }: Props) => {
       setIsLoading(true);
       const password = window.location.hash?.substring(1);
       if (!password) return "";
-      const decrypted = await decryptText(item.content || "", password);
+      const decrypted = await decryptText(item.content || "", password, String(item.configs?.encryption.nonce));
       setDecrypted(decrypted || "");
     } catch (e) {
       setIsError(true);
     } finally {
       setIsLoading(false);
     }
-  }, [item.content]);
+  }, [item.content, item.configs?.encryption.nonce]);
 
   useEffect(() => {
     decryptContent();

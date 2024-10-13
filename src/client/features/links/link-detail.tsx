@@ -5,7 +5,7 @@ import { ScreenLoading } from "@/client/components/screen-loading";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { useAppStore } from "@/client/stores/app.store";
 import { decryptVaultFormSchema } from "@/server/features/vault/vault.schema";
-import { DecryptVaultFormValues, VaultConfigs } from "@/server/features/vault/vault.type";
+import { DecryptVaultFormValues, EncryptionConfigs, VaultConfigs } from "@/server/features/vault/vault.type";
 import { decryptText, hashPassword } from "@/shared/utils/crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Modal, PasswordInput } from "@mantine/core";
@@ -26,6 +26,7 @@ const defaultFormValues: DecryptVaultFormValues = {
 const decryptContent = async (
   content: string,
   passwords: Set<string | null | undefined>,
+  configs?: EncryptionConfigs,
 ): Promise<{ status: "success"; raw: string; password: string; url: string } | { status: "fail" }> => {
   if (!content || !passwords?.size) return { status: "fail" };
   try {
@@ -33,7 +34,7 @@ const decryptContent = async (
     const passwordsArr = Array.from(passwords);
     passwordsArr.forEach((password) => {
       if (!password) return;
-      promises.push(decryptText(content, password));
+      promises.push(decryptText(content, password, String(configs?.nonce)));
     });
     const decryptedResult = await Promise.allSettled(promises);
     let decryptedContent = "";
@@ -74,7 +75,11 @@ export const LinkDetail = ({ item }: Props) => {
   const autoDecryptContent = useCallback(async () => {
     setIsLoading(true);
     const passwordOnHash = window.location.hash.slice(1);
-    const result = await decryptContent(item.content || "", new Set(passwords).add(passwordOnHash) || new Set());
+    const result = await decryptContent(
+      item.content || "",
+      new Set(passwords).add(passwordOnHash) || new Set(),
+      item.configs?.encryption,
+    );
     if (result.status === "success") {
       window.location.href = result.url;
       return;
@@ -83,13 +88,13 @@ export const LinkDetail = ({ item }: Props) => {
       openPasswordModal();
     }
     setIsLoading(false);
-  }, [item.content, passwords, openPasswordModal]);
+  }, [item.content, passwords, openPasswordModal, item.configs?.encryption]);
 
   const handleFormSubmit: SubmitHandler<DecryptVaultFormValues> = async (data) => {
     setIsError(false);
     setIsLoading(true);
     const shortUrl = window.location.origin + window.location.pathname;
-    const rawResult = await decryptContent(item.content || "", new Set([data.password]));
+    const rawResult = await decryptContent(item.content || "", new Set([data.password]), item.configs?.encryption);
     if (rawResult.status === "success") {
       addPassword(rawResult.password);
       addShortUrl(shortUrl);
@@ -97,7 +102,7 @@ export const LinkDetail = ({ item }: Props) => {
       return;
     }
     const password = await hashPassword(data.password, item.configs?.hash!);
-    const hashedResult = await decryptContent(item.content || "", new Set([password]));
+    const hashedResult = await decryptContent(item.content || "", new Set([password]), item.configs?.encryption);
     if (hashedResult.status === "success") {
       addPassword(hashedResult.password);
       addShortUrl(shortUrl);
