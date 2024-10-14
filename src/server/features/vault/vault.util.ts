@@ -27,28 +27,27 @@ export const handleVaultPublicIdCollision = async (randomFn: () => string) => {
 };
 
 export const getVaultExpiredTime = (expiresAt?: number): number => {
-  const sysdate = dayjs();
-  let result = dayjs().valueOf();
+  let result = dayjs();
   switch (expiresAt) {
     case VAULT_EXPIRE_1_HOUR:
-      result = sysdate.add(1, "hour").valueOf();
+      result = result.add(1, "hour");
       break;
     case VAULT_EXPIRE_1_DAY:
-      result = sysdate.add(1, "day").valueOf();
+      result = result.add(1, "day");
       break;
     case VAULT_EXPIRE_1_WEEK:
-      result = sysdate.add(1, "week").valueOf();
+      result = result.add(1, "week");
       break;
     case VAULT_EXPIRE_1_MONTH:
-      result = sysdate.add(1, "month").valueOf();
+      result = result.add(1, "month");
       break;
     case VAULT_EXPIRE_4_MONTHS:
-      result = sysdate.add(4, "month").valueOf();
+      result = result.add(4, "month");
       break;
     default:
-      result = sysdate.add(1, "hour").valueOf();
+      result = result.add(1, "hour");
   }
-  return result;
+  return result.valueOf();
 };
 
 const createBase = async (base: string) => {
@@ -56,8 +55,8 @@ const createBase = async (base: string) => {
 };
 
 const HEX_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
-const MAX_ROUNDS = 16;
-const MIN_ROUNDS = 2;
+const MIN_ROUNDS = 4;
+const MAX_ROUNDS = 32;
 const BASE_CONTENT_EXTRA = "content";
 const BASE_SALT_EXTRA = "salt";
 const BASE_ENCRYPTION_EXTRA = "encryption";
@@ -66,7 +65,6 @@ export const generateFakeContent = async (base: string): Promise<string> => {
   let rounds = HEX_ALPHABET.indexOf(base[0]);
   if (rounds < MIN_ROUNDS) rounds = MIN_ROUNDS;
   if (rounds > MAX_ROUNDS) rounds = MAX_ROUNDS;
-  rounds *= 2;
   const promises: Promise<string>[] = [];
   for (let i = 0; i < rounds; i++) {
     promises.push(createHash(base[i])); // select 1 character to shorten the hash input
