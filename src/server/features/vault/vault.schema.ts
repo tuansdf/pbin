@@ -11,7 +11,7 @@ import {
 import { passwordSchema, stringOrUndefined } from "@/shared/schemas/common.schema";
 import { z } from "zod";
 
-const MAX_CONTENT_SERVER = 20000;
+const MAX_CONTENT_SERVER = 15000;
 const MAX_CONTENT_CLIENT = 10000;
 
 const passwordConfigsSchema: z.ZodType<HashConfigs> = z.object(
@@ -99,6 +99,7 @@ export const createVaultRequestSchema: z.ZodType<CreateVaultRequest> = z.object(
 
 export const deleteVaultSchema: z.ZodType<DeleteVaultRequest> = z.object({
   password: passwordSchema,
+  raw: passwordSchema.optional(),
 });
 
 export const deleteVaultFormSchema: z.ZodType<DeleteVaultFormValues> = z.object({

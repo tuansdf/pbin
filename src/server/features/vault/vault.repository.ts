@@ -18,6 +18,10 @@ class VaultRepository {
     await db.delete(VaultTable).where(eq(VaultTable.id, id));
   };
 
+  public deleteByPublicId = async (id: string) => {
+    await db.delete(VaultTable).where(eq(VaultTable.publicId, id));
+  };
+
   public findTopByPublicId = async (publicId: string) => {
     const result = await db.select().from(VaultTable).where(eq(VaultTable.publicId, publicId)).limit(1);
     return result?.[0];

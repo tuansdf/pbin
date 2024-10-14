@@ -1,6 +1,14 @@
-import { DEFAULT_NOTE_ID_SIZE, DEFAULT_PASSWORD_SIZE, ID_ALPHABET } from "@/server/features/vault/vault.constant";
+import {
+  DEFAULT_HASHER,
+  DEFAULT_ITERATIONS,
+  DEFAULT_KEY_SIZE,
+  DEFAULT_NONCE_SIZE,
+  DEFAULT_NOTE_ID_SIZE,
+  DEFAULT_PASSWORD_SIZE,
+  DEFAULT_SALT_SIZE,
+  ID_ALPHABET,
+} from "@/shared/constants/common.constant";
 import { HashConfigs } from "@/server/features/vault/vault.type";
-import { ENV } from "@/shared/constants/env.constant";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha";
 import { bytesToHex, bytesToUtf8, hexToBytes, utf8ToBytes } from "@noble/ciphers/utils";
 import { randomBytes } from "@noble/ciphers/webcrypto";
@@ -8,9 +16,6 @@ import { pbkdf2Async } from "@noble/hashes/pbkdf2";
 import { sha256 } from "@noble/hashes/sha2";
 import { fromByteArray, toByteArray } from "base64-js";
 import { customAlphabet } from "nanoid";
-
-const DEFAULT_NONCE_LENGTH = 24;
-const FAKE_NONCE_LENGTH = DEFAULT_NONCE_LENGTH * 2;
 
 export const encryptText = async (contentStr: string, passwordHex: string, nonceHex: string): Promise<string> => {
   try {
@@ -46,13 +51,7 @@ export const decryptText = async (content64: string, passwordHex: string, nonceH
 
 export const generateEncryptionConfigs = () => {
   return {
-    nonce: bytesToHex(randomBytes(DEFAULT_NONCE_LENGTH)),
-  };
-};
-export const generateFakeEncryptionConfigs = async (base: string) => {
-  base = await createBase(base + "encryption");
-  return {
-    nonce: (await createHash(base)).substring(0, FAKE_NONCE_LENGTH),
+    nonce: bytesToHex(randomBytes(DEFAULT_NONCE_SIZE)),
   };
 };
 
@@ -65,11 +64,12 @@ export const generatePassword = (size: number = DEFAULT_PASSWORD_SIZE) => {
   return bytesToHex(randomBytes(size));
 };
 
-const DEFAULT_KEY_SIZE = 32;
-const DEFAULT_SALT_SIZE = 24;
-const DEFAULT_ITERATIONS = 1_000;
-const DEFAULT_HASHER = "SHA-256";
-const FAKE_SALT_LENGTH = DEFAULT_SALT_SIZE * 2;
+export const generateHashConfigsWithSalt = (salt: string): HashConfigs => {
+  let iterations = DEFAULT_ITERATIONS;
+  let keySize = DEFAULT_KEY_SIZE;
+  let hasher = DEFAULT_HASHER;
+  return { keySize, iterations, salt, hasher };
+};
 export const generateHashConfigs = (): HashConfigs => {
   let iterations = DEFAULT_ITERATIONS;
   let keySize = DEFAULT_KEY_SIZE;
@@ -78,18 +78,10 @@ export const generateHashConfigs = (): HashConfigs => {
   let salt = bytesToHex(randomBytes(saltSize));
   return { keySize, iterations, salt, hasher };
 };
-export const generateFakeHashConfigs = async (base: string): Promise<HashConfigs> => {
-  base = await createBase(base + "hash");
-  let keySize = DEFAULT_KEY_SIZE;
-  let iterations = DEFAULT_ITERATIONS;
-  let hasher = DEFAULT_HASHER;
-  let salt = (await createHash(base)).substring(0, FAKE_SALT_LENGTH);
-  return { keySize, iterations, salt, hasher };
-};
 
 export const hashPassword = async (passwordStr: string, configs: HashConfigs): Promise<string> => {
   try {
-    await new Promise((r) => setTimeout(r, 1000));
+    // await new Promise((r) => setTimeout(r, 1000));
 
     console.time("HPERF");
     const hashed = await pbkdf2Async(sha256, utf8ToBytes(passwordStr), hexToBytes(String(configs.salt)), {
@@ -110,23 +102,4 @@ export const createHash = async (input: string): Promise<string> => {
   } catch {
     return "";
   }
-};
-
-const HEX_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const MAX_ROUNDS = 20;
-const MIN_ROUNDS = 4;
-export const generateFakeContent = async (base: string): Promise<string> => {
-  base = await createBase(base + "content");
-  let result = await createHash(base);
-  let rounds = HEX_ALPHABET.indexOf(result[0]);
-  if (rounds < MIN_ROUNDS) rounds = MIN_ROUNDS;
-  if (rounds > MAX_ROUNDS) rounds = MAX_ROUNDS;
-  for (let i = 0; i < rounds; i++) {
-    result += await createHash(result[i]); // select 1 character to shorten the hash input
-  }
-  return result;
-};
-
-const createBase = async (base: string) => {
-  return createHash(base + ENV.SALT);
 };

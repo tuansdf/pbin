@@ -4,7 +4,6 @@ import { vaultService } from "@/server/features/vault/vault.service";
 
 export default async function DetailPage({ params }: { params: { id: string } }) {
   const item = await vaultService.getTopByPublicId(params.id);
-  console.log(item)
 
   return <>{!!item ? <NoteDetail item={item} /> : <NotFound />}</>;
 }

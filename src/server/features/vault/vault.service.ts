@@ -1,49 +1,23 @@
-import {
-  DEFAULT_LINK_ID_SIZE,
-  DEFAULT_NOTE_ID_SIZE,
-  VAULT_EXPIRE_1_DAY,
-  VAULT_EXPIRE_1_HOUR,
-  VAULT_EXPIRE_1_MONTH,
-  VAULT_EXPIRE_1_WEEK,
-  VAULT_EXPIRE_1_YEAR,
-  VAULT_TYPE_LINK,
-} from "@/server/features/vault/vault.constant";
+import { ENV } from "@/server/constants/env.constant";
 import { vaultRepository } from "@/server/features/vault/vault.repository";
 import { CreateVaultRequest, DeleteVaultRequest, VaultConfigs } from "@/server/features/vault/vault.type";
-import { handleVaultPublicIdCollision } from "@/server/features/vault/vault.util";
-import { CustomException } from "@/shared/exceptions/custom-exception";
 import {
   generateFakeContent,
   generateFakeEncryptionConfigs,
   generateFakeHashConfigs,
-  generateId,
-  hashPassword,
-} from "@/shared/utils/crypto";
+  getVaultExpiredTime,
+  handleVaultPublicIdCollision,
+} from "@/server/features/vault/vault.util";
+import { DEFAULT_LINK_ID_SIZE, DEFAULT_NOTE_ID_SIZE, VAULT_TYPE_LINK } from "@/shared/constants/common.constant";
+import { CustomException } from "@/shared/exceptions/custom-exception";
+import { createHash, generateId, hashPassword } from "@/shared/utils/crypto.util";
 import dayjs from "dayjs";
+
+export const HASHED_SUPER_PASSWORD = ENV.SUPER_PASSWORD ? await createHash(ENV.SUPER_PASSWORD) : undefined;
 
 class VaultService {
   public create = async (data: CreateVaultRequest, type: number) => {
-    let expiresAt: number | undefined = undefined;
-    const sysdate = dayjs();
-    switch (data.expiresAt) {
-      case VAULT_EXPIRE_1_HOUR:
-        expiresAt = sysdate.add(1, "hour").set("millisecond", 0).valueOf();
-        break;
-      case VAULT_EXPIRE_1_DAY:
-        expiresAt = sysdate.add(1, "day").set("millisecond", 0).valueOf();
-        break;
-      case VAULT_EXPIRE_1_WEEK:
-        expiresAt = sysdate.add(1, "week").set("millisecond", 0).valueOf();
-        break;
-      case VAULT_EXPIRE_1_MONTH:
-        expiresAt = sysdate.add(1, "month").set("millisecond", 0).valueOf();
-        break;
-      case VAULT_EXPIRE_1_YEAR:
-        expiresAt = sysdate.add(1, "year").set("millisecond", 0).valueOf();
-        break;
-      default:
-        expiresAt = sysdate.add(1, "year").set("millisecond", 0).valueOf();
-    }
+    let expiresAt: number = getVaultExpiredTime(data.expiresAt);
 
     const publicId = await handleVaultPublicIdCollision(() =>
       generateId(type === VAULT_TYPE_LINK ? DEFAULT_LINK_ID_SIZE : DEFAULT_NOTE_ID_SIZE),
@@ -80,7 +54,7 @@ class VaultService {
   };
 
   public deleteExpiredVaults = async () => {
-    const date = dayjs().set("millisecond", 0).valueOf();
+    const date = dayjs().valueOf();
     await vaultRepository.deleteAllExpiresAtBefore(date);
     return date;
   };
@@ -110,8 +84,12 @@ class VaultService {
   };
 
   public deleteTopByPublicId = async (id: string, data: DeleteVaultRequest) => {
+    if (HASHED_SUPER_PASSWORD && data.raw && HASHED_SUPER_PASSWORD === (await createHash(data.raw))) {
+      await vaultRepository.deleteByPublicId(id);
+      return;
+    }
     const vault = await vaultRepository.findTopByPublicId(id);
-    if (!data.password) {
+    if (!vault || !data.password) {
       throw new CustomException();
     }
     const reqPassword = await hashPassword(data.password, this.parseVaultConfigs(vault.configs!)?.hash!);

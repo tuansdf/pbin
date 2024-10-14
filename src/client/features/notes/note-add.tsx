@@ -8,9 +8,9 @@ import {
   VAULT_EXPIRE_1_HOUR,
   VAULT_EXPIRE_1_MONTH,
   VAULT_EXPIRE_1_WEEK,
-  VAULT_EXPIRE_1_YEAR,
+  VAULT_EXPIRE_4_MONTHS,
   VAULT_TYPE_NOTE,
-} from "@/server/features/vault/vault.constant";
+} from "@/shared/constants/common.constant";
 import { createNoteFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
 import {
@@ -19,7 +19,7 @@ import {
   generateHashConfigs,
   generatePassword,
   hashPassword,
-} from "@/shared/utils/crypto";
+} from "@/shared/utils/crypto.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, NativeSelect, PasswordInput, Textarea, Title } from "@mantine/core";
 import { useRouter } from "next/navigation";
@@ -129,7 +129,7 @@ const expireOptions = [
     label: "1 month",
   },
   {
-    value: String(VAULT_EXPIRE_1_YEAR),
-    label: "1 year",
+    value: String(VAULT_EXPIRE_4_MONTHS),
+    label: "4 months",
   },
 ];

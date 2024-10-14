@@ -39,6 +39,7 @@ export type CreateVaultFormValues = {
 
 export type DeleteVaultRequest = {
   password: string;
+  raw?: string;
 };
 
 export type DeleteVaultFormValues = {

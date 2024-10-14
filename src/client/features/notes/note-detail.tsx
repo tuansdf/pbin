@@ -4,7 +4,7 @@ import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { VaultDeleteModal } from "@/client/features/vaults/vault-delete-modal";
 import { VaultConfigs } from "@/server/features/vault/vault.type";
-import { decryptText } from "@/shared/utils/crypto";
+import { decryptText } from "@/shared/utils/crypto.util";
 import { Button, Group, Textarea } from "@mantine/core";
 import Link from "next/link";
 import { useParams } from "next/navigation";

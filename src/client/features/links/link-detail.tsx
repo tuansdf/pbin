@@ -6,7 +6,7 @@ import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { useAppStore } from "@/client/stores/app.store";
 import { decryptVaultFormSchema } from "@/server/features/vault/vault.schema";
 import { DecryptVaultFormValues, EncryptionConfigs, VaultConfigs } from "@/server/features/vault/vault.type";
-import { decryptText, hashPassword } from "@/shared/utils/crypto";
+import { decryptText, hashPassword } from "@/shared/utils/crypto.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Modal, PasswordInput } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";

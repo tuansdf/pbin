@@ -1,4 +1,4 @@
-import { generateId } from "@/shared/utils/crypto";
+import { generateId } from "@/shared/utils/crypto.util";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const VaultTable = sqliteTable(

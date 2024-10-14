@@ -1,5 +1,5 @@
+import { ENV } from "@/server/constants/env.constant";
 import { defineConfig } from "drizzle-kit";
-import { ENV } from "@/shared/constants/env.constant";
 
 export default defineConfig({
   schema: "./src/server/entities/*.entity.ts",

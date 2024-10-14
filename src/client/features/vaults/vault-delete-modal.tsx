@@ -4,7 +4,8 @@ import { ScreenLoading } from "@/client/components/screen-loading";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { deleteVaultFormSchema } from "@/server/features/vault/vault.schema";
 import { DeleteVaultFormValues } from "@/server/features/vault/vault.type";
-import { hashPassword } from "@/shared/utils/crypto";
+import { ENV_SALT } from "@/client/constants/env.constant";
+import { generateHashConfigsWithSalt, hashPassword } from "@/shared/utils/crypto.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Modal, PasswordInput } from "@mantine/core";
 import { useRouter } from "next/navigation";
@@ -40,7 +41,8 @@ export const VaultDeleteModal = ({ id }: Props) => {
       setIsLoading(true);
       setIsError(false);
       const password = await hashPassword(data.password, configsQuery.data?.hash!);
-      await deleteVault(id, { password });
+      const raw = await hashPassword(data.password, generateHashConfigsWithSalt(ENV_SALT));
+      await deleteVault(id, { password, raw });
       router.push("/");
     } catch (e) {
       setIsError(true);
