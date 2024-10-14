@@ -55,8 +55,8 @@ const createBase = async (base: string) => {
 };
 
 const HEX_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
-const MIN_ROUNDS = 4;
-const MAX_ROUNDS = 32;
+const MIN_ROUNDS = 2;
+const MAX_ROUNDS = 16;
 const BASE_CONTENT_EXTRA = "content";
 const BASE_SALT_EXTRA = "salt";
 const BASE_ENCRYPTION_EXTRA = "encryption";
@@ -65,6 +65,7 @@ export const generateFakeContent = async (base: string): Promise<string> => {
   let rounds = HEX_ALPHABET.indexOf(base[0]);
   if (rounds < MIN_ROUNDS) rounds = MIN_ROUNDS;
   if (rounds > MAX_ROUNDS) rounds = MAX_ROUNDS;
+  rounds *= 2;
   const promises: Promise<string>[] = [];
   for (let i = 0; i < rounds; i++) {
     promises.push(createHash(base[i])); // select 1 character to shorten the hash input

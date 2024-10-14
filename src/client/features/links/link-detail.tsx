@@ -4,11 +4,13 @@ import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { useAppStore } from "@/client/stores/app.store";
+import fclasses from "@/client/styles/form.module.scss";
 import { decryptVaultFormSchema } from "@/server/features/vault/vault.schema";
 import { DecryptVaultFormValues, EncryptionConfigs, VaultConfigs } from "@/server/features/vault/vault.type";
 import { decryptText, hashPassword } from "@/shared/utils/crypto.util";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, Modal, PasswordInput } from "@mantine/core";
+import { Button, Card, PasswordInput, Title } from "@mantine/core";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -71,6 +73,7 @@ export const LinkDetail = ({ item }: Props) => {
     defaultValues: defaultFormValues,
     resolver: zodResolver(decryptVaultFormSchema),
   });
+  const [originalLink, setOriginalLink] = useState("");
 
   const autoDecryptContent = useCallback(async () => {
     setIsLoading(true);
@@ -81,7 +84,7 @@ export const LinkDetail = ({ item }: Props) => {
       item.configs?.encryption,
     );
     if (result.status === "success") {
-      window.location.href = result.url;
+      setOriginalLink(result.url);
       return;
     }
     if (result.status === "fail") {
@@ -98,7 +101,7 @@ export const LinkDetail = ({ item }: Props) => {
     if (rawResult.status === "success") {
       addPassword(rawResult.password);
       addShortUrl(shortUrl);
-      window.location.href = rawResult.url;
+      setOriginalLink(rawResult.url);
       return;
     }
     const password = await hashPassword(data.password, item.configs?.hash!);
@@ -106,7 +109,7 @@ export const LinkDetail = ({ item }: Props) => {
     if (hashedResult.status === "success") {
       addPassword(hashedResult.password);
       addShortUrl(shortUrl);
-      window.location.href = hashedResult.url;
+      setOriginalLink(hashedResult.url);
       return;
     }
     if (hashedResult.status === "fail") {
@@ -124,21 +127,45 @@ export const LinkDetail = ({ item }: Props) => {
     <>
       {isError && !isPasswordOpen && <ErrorMessage mt="md" />}
 
-      <Modal
-        opened={isPasswordOpen}
-        onClose={() => {}}
-        title="Unlock this link"
-        withCloseButton={false}
-        transitionProps={{ transition: "fade", duration: 0 }}
+      <Card
+        shadow="sm"
+        padding="lg"
+        radius="md"
+        pos="relative"
+        component="form"
+        onSubmit={handleSubmit(handleFormSubmit)}
+        className={fclasses["form"]}
+        maw="30rem"
+        mb="md"
+        style={{
+          textAlign: "center",
+          width: "100%",
+          wordBreak: "break-all",
+          overflowWrap: "break-word",
+          hyphens: "auto",
+          whiteSpace: "normal",
+        }}
       >
-        <Box component="form" onSubmit={handleSubmit(handleFormSubmit)}>
-          <PasswordInput label="Password" {...register("password")} error={errors.password?.message} withAsterisk />
-          <Button type="submit" mt="xs">
-            Submit
-          </Button>
-          {isError && <ErrorMessage mt="xs" />}
-        </Box>
-      </Modal>
+        {!originalLink && (
+          <>
+            <Title>Unlock this link</Title>
+            <PasswordInput label="Password" {...register("password")} error={errors.password?.message} withAsterisk />
+            <Button type="submit" mt="xs">
+              Submit
+            </Button>
+            {isError && <ErrorMessage mt="xs" />}
+          </>
+        )}
+        {!!originalLink && (
+          <>
+            <Link href={originalLink}>{originalLink}</Link>
+            <Title my="sm">Would you like to proceed?</Title>
+            <Button component="a" href={originalLink} variant="filled">
+              Continue
+            </Button>
+          </>
+        )}
+      </Card>
 
       <ScreenLoading isLoading={isLoading} />
     </>

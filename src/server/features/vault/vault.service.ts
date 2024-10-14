@@ -14,6 +14,7 @@ import { createHash, createHashSync, generateId, hashPassword } from "@/shared/u
 import dayjs from "dayjs";
 
 const HASHED_SUPER_PASSWORD = ENV.SUPER_PASSWORD ? createHashSync(ENV.SUPER_PASSWORD) : undefined;
+const ID_REGEX = /^[a-zA-Z0-9]+$/;
 
 class VaultService {
   public create = async (data: CreateVaultRequest, type: number) => {
@@ -35,7 +36,9 @@ class VaultService {
 
   public getTopByPublicId = async (
     id: string,
-  ): Promise<{ publicId: string; content: string | null; configs?: VaultConfigs }> => {
+  ): Promise<{ publicId: string; content: string | null; configs?: VaultConfigs } | null> => {
+    if (!ID_REGEX.test(id)) return null;
+
     const vault = await vaultRepository.findTopByPublicId(id);
     if (!vault) {
       return {
