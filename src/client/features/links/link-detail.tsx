@@ -4,6 +4,7 @@ import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { useAppStore } from "@/client/stores/app.store";
+import fclasses from "@/client/styles/form.module.scss";
 import { decryptVaultFormSchema } from "@/server/features/vault/vault.schema";
 import { DecryptVaultFormValues, EncryptionConfigs, VaultConfigs } from "@/server/features/vault/vault.type";
 import { decryptText, hashPassword } from "@/shared/utils/crypto.util";
@@ -131,11 +132,12 @@ export const LinkDetail = ({ item }: Props) => {
         padding="lg"
         radius="md"
         pos="relative"
+        component="form"
         onSubmit={handleSubmit(handleFormSubmit)}
+        className={fclasses["form"]}
         maw="30rem"
         mb="md"
         style={{
-          textAlign: "center",
           width: "100%",
           wordBreak: "break-all",
           overflowWrap: "break-word",
@@ -145,7 +147,9 @@ export const LinkDetail = ({ item }: Props) => {
       >
         {!originalLink && (
           <>
-            <Title>Unlock this link</Title>
+            <Title order={2} ta="center">
+              Unlock this link
+            </Title>
             <PasswordInput label="Password" {...register("password")} error={errors.password?.message} withAsterisk />
             <Button type="submit" mt="xs">
               Submit
@@ -156,7 +160,7 @@ export const LinkDetail = ({ item }: Props) => {
         {!!originalLink && (
           <>
             <Link href={originalLink}>{originalLink}</Link>
-            <Text my="sm" fw="bold">
+            <Text fw="bold" ta="center">
               Would you like to proceed?
             </Text>
             <Button component="a" href={originalLink} variant="filled">
