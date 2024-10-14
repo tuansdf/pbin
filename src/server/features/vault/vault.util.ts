@@ -15,6 +15,8 @@ import {
 } from "@/shared/constants/common.constant";
 import { handleRetry } from "@/shared/utils/common.util";
 import { createHash } from "@/shared/utils/crypto.util";
+import { hexToBytes } from "@noble/ciphers/utils";
+import { fromByteArray } from "base64-js";
 import dayjs from "dayjs";
 
 export const handleVaultPublicIdCollision = async (randomFn: () => string) => {
@@ -70,8 +72,7 @@ export const generateFakeContent = async (base: string): Promise<string> => {
     promises.push(createHash(base[i])); // select 1 character to shorten the hash input
   }
   const result = await Promise.all(promises);
-  result.push(result.pop()?.substring(0, rounds) || "");
-  return result.join("");
+  return fromByteArray(hexToBytes(result.join("")));
 };
 
 export const generateFakeHashConfigs = async (base: string): Promise<HashConfigs> => {
