@@ -1,3 +1,4 @@
+import { HashConfigs } from "@/server/features/vault/vault.type";
 import {
   DEFAULT_HASHER,
   DEFAULT_ITERATIONS,
@@ -8,7 +9,6 @@ import {
   DEFAULT_SALT_SIZE,
   ID_ALPHABET,
 } from "@/shared/constants/common.constant";
-import { HashConfigs } from "@/server/features/vault/vault.type";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha";
 import { bytesToHex, bytesToUtf8, hexToBytes, utf8ToBytes } from "@noble/ciphers/utils";
 import { randomBytes } from "@noble/ciphers/webcrypto";
@@ -81,7 +81,7 @@ export const generateHashConfigs = (): HashConfigs => {
 
 export const hashPassword = async (passwordStr: string, configs: HashConfigs): Promise<string> => {
   try {
-    // await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 100));
 
     console.time("HPERF");
     const hashed = await pbkdf2Async(sha256, utf8ToBytes(passwordStr), hexToBytes(String(configs.salt)), {
@@ -97,6 +97,14 @@ export const hashPassword = async (passwordStr: string, configs: HashConfigs): P
 };
 
 export const createHash = async (input: string): Promise<string> => {
+  try {
+    return bytesToHex(sha256(input));
+  } catch {
+    return "";
+  }
+};
+
+export const createHashSync = (input: string): string => {
   try {
     return bytesToHex(sha256(input));
   } catch {

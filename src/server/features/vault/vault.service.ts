@@ -10,10 +10,10 @@ import {
 } from "@/server/features/vault/vault.util";
 import { DEFAULT_LINK_ID_SIZE, DEFAULT_NOTE_ID_SIZE, VAULT_TYPE_LINK } from "@/shared/constants/common.constant";
 import { CustomException } from "@/shared/exceptions/custom-exception";
-import { createHash, generateId, hashPassword } from "@/shared/utils/crypto.util";
+import { createHash, createHashSync, generateId, hashPassword } from "@/shared/utils/crypto.util";
 import dayjs from "dayjs";
 
-export const HASHED_SUPER_PASSWORD = ENV.SUPER_PASSWORD ? await createHash(ENV.SUPER_PASSWORD) : undefined;
+const HASHED_SUPER_PASSWORD = ENV.SUPER_PASSWORD ? createHashSync(ENV.SUPER_PASSWORD) : undefined;
 
 class VaultService {
   public create = async (data: CreateVaultRequest, type: number) => {
