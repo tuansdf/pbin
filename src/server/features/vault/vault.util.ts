@@ -7,17 +7,16 @@ import {
   DEFAULT_KEY_SIZE,
   FAKE_NONCE_SIZE,
   FAKE_SALT_SIZE,
-  VAULT_EXPIRE_1_DAY,
-  VAULT_EXPIRE_1_HOUR,
-  VAULT_EXPIRE_1_MONTH,
-  VAULT_EXPIRE_1_WEEK,
-  VAULT_EXPIRE_4_MONTHS,
+  MAX_EXPIRES_TIME,
+  MAX_ID_SIZE,
+  MIN_EXPIRES_TIME,
+  MIN_ID_SIZE,
 } from "@/shared/constants/common.constant";
 import { handleRetry } from "@/shared/utils/common.util";
 import { createHash } from "@/shared/utils/crypto.util";
 import { hexToBytes } from "@noble/ciphers/utils";
-import { fromByteArray } from "base64-js";
 import dayjs from "dayjs";
+import { base64 } from "@scure/base";
 
 export const handleVaultPublicIdCollision = async (randomFn: () => string) => {
   return await handleRetry({
@@ -28,26 +27,17 @@ export const handleVaultPublicIdCollision = async (randomFn: () => string) => {
 
 export const getVaultExpiredTime = (expiresAt?: number): number => {
   let result = dayjs();
-  switch (expiresAt) {
-    case VAULT_EXPIRE_1_HOUR:
-      result = result.add(1, "hour");
-      break;
-    case VAULT_EXPIRE_1_DAY:
-      result = result.add(1, "day");
-      break;
-    case VAULT_EXPIRE_1_WEEK:
-      result = result.add(1, "week");
-      break;
-    case VAULT_EXPIRE_1_MONTH:
-      result = result.add(1, "month");
-      break;
-    case VAULT_EXPIRE_4_MONTHS:
-      result = result.add(4, "month");
-      break;
-    default:
-      result = result.add(1, "hour");
-  }
+  if (!expiresAt) return result.valueOf();
+  if (expiresAt < MIN_EXPIRES_TIME) expiresAt = MIN_EXPIRES_TIME;
+  if (expiresAt > MAX_EXPIRES_TIME) expiresAt = MAX_EXPIRES_TIME;
+  result.add(expiresAt, "minute");
   return result.valueOf();
+};
+
+export const getVaultIdSize = (type?: number): number => {
+  if (!type || type > MAX_ID_SIZE) return MAX_ID_SIZE;
+  if (type < MIN_ID_SIZE) return MIN_ID_SIZE;
+  return type;
 };
 
 const createBase = async (base: string) => {
@@ -71,7 +61,7 @@ export const generateFakeContent = async (base: string): Promise<string> => {
     promises.push(createHash(base[i])); // select 1 character to shorten the hash input
   }
   const result = await Promise.all(promises);
-  return fromByteArray(hexToBytes(result.join("")));
+  return base64.encode(hexToBytes(result.join("")));
 };
 
 export const generateFakeHashConfigs = async (base: string): Promise<HashConfigs> => {

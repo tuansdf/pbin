@@ -6,12 +6,12 @@ import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
 import fclasses from "@/client/styles/form.module.scss";
 import {
+  DEFAULT_LINK_ID_SIZE,
   VAULT_EXPIRE_1_DAY,
   VAULT_EXPIRE_1_HOUR,
   VAULT_EXPIRE_1_MONTH,
   VAULT_EXPIRE_1_WEEK,
   VAULT_EXPIRE_4_MONTHS,
-  VAULT_TYPE_LINK,
 } from "@/shared/constants/common.constant";
 import { createLinkFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, CopyButton, Group, NativeSelect, PasswordInput, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { getVaultExpiresTime } from "@/shared/utils/common.util";
 
 const defaultFormValues: CreateVaultFormValues = {
   content: "",
@@ -68,9 +69,9 @@ export const LinkAdd = () => {
           content: encrypted || "",
           configs: { hash: hashConfigs, encryption: encryptionConfigs },
           masterPassword: masterPassword,
-          expiresAt: data.expiresAt,
+          expiresAt: getVaultExpiresTime(Number(data.expiresAt)),
         },
-        VAULT_TYPE_LINK,
+        DEFAULT_LINK_ID_SIZE,
       );
       reset({ password: "" });
       addPassword(password);

@@ -14,8 +14,8 @@ import { bytesToHex, bytesToUtf8, hexToBytes, utf8ToBytes } from "@noble/ciphers
 import { randomBytes } from "@noble/ciphers/webcrypto";
 import { pbkdf2Async } from "@noble/hashes/pbkdf2";
 import { sha256 } from "@noble/hashes/sha2";
-import { fromByteArray, toByteArray } from "base64-js";
 import { customAlphabet } from "nanoid";
+import { base64 } from "@scure/base";
 
 export const encryptText = async (contentStr: string, passwordHex: string, nonceHex: string): Promise<string> => {
   console.time("EPERF");
@@ -25,7 +25,7 @@ export const encryptText = async (contentStr: string, passwordHex: string, nonce
     const cipher = xchacha20poly1305(password, nonce);
     const content = utf8ToBytes(contentStr);
     const encrypted = cipher.encrypt(content);
-    return fromByteArray(encrypted);
+    return base64.encode(encrypted);
   } catch (e) {
     return "";
   } finally {
@@ -36,7 +36,7 @@ export const encryptText = async (contentStr: string, passwordHex: string, nonce
 export const decryptText = async (content64: string, passwordHex: string, nonceHex: string): Promise<string> => {
   console.time("DPERF");
   try {
-    const content = toByteArray(content64);
+    const content = base64.decode(content64);
     const password = hexToBytes(passwordHex);
     const nonce = hexToBytes(nonceHex);
     const cipher = xchacha20poly1305(password, nonce);

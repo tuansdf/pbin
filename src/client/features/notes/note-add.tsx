@@ -4,12 +4,12 @@ import { createVault } from "@/client/api/vault.api";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
 import {
+  DEFAULT_NOTE_ID_SIZE,
   VAULT_EXPIRE_1_DAY,
   VAULT_EXPIRE_1_HOUR,
   VAULT_EXPIRE_1_MONTH,
   VAULT_EXPIRE_1_WEEK,
   VAULT_EXPIRE_4_MONTHS,
-  VAULT_TYPE_NOTE,
 } from "@/shared/constants/common.constant";
 import { createNoteFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
@@ -25,6 +25,7 @@ import { Box, Button, NativeSelect, PasswordInput, Textarea, Title } from "@mant
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { getVaultExpiresTime } from "@/shared/utils/common.util";
 
 const defaultFormValues: CreateVaultFormValues = {
   content: "",
@@ -64,9 +65,9 @@ export const NoteAdd = () => {
           content: encrypted || "",
           masterPassword: masterPassword,
           configs: { hash: passwordConfigs, encryption: encryptionConfigs },
-          expiresAt: data.expiresAt,
+          expiresAt: getVaultExpiresTime(Number(data.expiresAt)),
         },
-        VAULT_TYPE_NOTE,
+        DEFAULT_NOTE_ID_SIZE,
       );
       const link = `/n/${body.publicId}#${randomPassword}`;
       addNoteUrl(window.location.origin + link);

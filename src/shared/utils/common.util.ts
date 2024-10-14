@@ -1,3 +1,10 @@
+import {
+  VAULT_EXPIRE_1_DAY,
+  VAULT_EXPIRE_1_HOUR,
+  VAULT_EXPIRE_1_MONTH,
+  VAULT_EXPIRE_1_WEEK,
+} from "@/shared/constants/common.constant";
+
 const DEFAULT_MAX_RETRIES = 100;
 
 export const handleRetry = async <T>({
@@ -29,5 +36,18 @@ export const handleRetry = async <T>({
     }
     retryCount++;
   }
+  return result;
+};
+
+// return in minutes
+const expiresMap: Record<number, number> = {
+  [VAULT_EXPIRE_1_HOUR]: 60,
+  [VAULT_EXPIRE_1_DAY]: 60 * 24,
+  [VAULT_EXPIRE_1_WEEK]: 60 * 24 * 7,
+  [VAULT_EXPIRE_1_MONTH]: 60 * 24 * 30,
+};
+export const getVaultExpiresTime = (type: number): number => {
+  let result = expiresMap[type];
+  if (!result) return 1;
   return result;
 };

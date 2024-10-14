@@ -6,9 +6,9 @@ import {
   generateFakeEncryptionConfigs,
   generateFakeHashConfigs,
   getVaultExpiredTime,
+  getVaultIdSize,
   handleVaultPublicIdCollision,
 } from "@/server/features/vault/vault.util";
-import { DEFAULT_LINK_ID_SIZE, DEFAULT_NOTE_ID_SIZE, VAULT_TYPE_LINK } from "@/shared/constants/common.constant";
 import { CustomException } from "@/shared/exceptions/custom-exception";
 import { createHash, createHashSync, generateId, hashPassword } from "@/shared/utils/crypto.util";
 import dayjs from "dayjs";
@@ -20,9 +20,7 @@ class VaultService {
   public create = async (data: CreateVaultRequest, type: number) => {
     let expiresAt: number = getVaultExpiredTime(data.expiresAt);
 
-    const publicId = await handleVaultPublicIdCollision(() =>
-      generateId(type === VAULT_TYPE_LINK ? DEFAULT_LINK_ID_SIZE : DEFAULT_NOTE_ID_SIZE),
-    );
+    const publicId = await handleVaultPublicIdCollision(() => generateId(getVaultIdSize(type)));
     const hashedPassword = data.masterPassword ? await hashPassword(data.masterPassword, data.configs.hash) : undefined;
     await vaultRepository.create({
       publicId,
