@@ -1,37 +1,44 @@
 import { DEFAULT_NOTE_ID_SIZE, DEFAULT_PASSWORD_SIZE, ID_ALPHABET } from "@/server/features/vault/vault.constant";
 import { HashConfigs } from "@/server/features/vault/vault.type";
-import { customAlphabet } from "nanoid";
+import { ENV } from "@/shared/constants/env.constant";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha";
 import { bytesToHex, bytesToUtf8, hexToBytes, utf8ToBytes } from "@noble/ciphers/utils";
 import { randomBytes } from "@noble/ciphers/webcrypto";
 import { pbkdf2Async } from "@noble/hashes/pbkdf2";
 import { sha256 } from "@noble/hashes/sha2";
-import { ENV } from "@/shared/constants/env.constant";
+import { fromByteArray, toByteArray } from "base64-js";
+import { customAlphabet } from "nanoid";
 
 const DEFAULT_NONCE_LENGTH = 24;
 const FAKE_NONCE_LENGTH = DEFAULT_NONCE_LENGTH * 2;
 
 export const encryptText = async (contentStr: string, passwordHex: string, nonceHex: string): Promise<string> => {
   try {
+    console.time("EPERF");
     const nonce = hexToBytes(nonceHex);
     const password = hexToBytes(passwordHex);
     const cipher = xchacha20poly1305(password, nonce);
     const content = utf8ToBytes(contentStr);
     const encrypted = cipher.encrypt(content);
-    return bytesToHex(encrypted);
+    const result = fromByteArray(encrypted);
+    console.timeEnd("EPERF");
+    return result;
   } catch (e) {
     return "";
   }
 };
 
-export const decryptText = async (contentHex: string, passwordHex: string, nonceHex: string): Promise<string> => {
+export const decryptText = async (content64: string, passwordHex: string, nonceHex: string): Promise<string> => {
   try {
-    const content = hexToBytes(contentHex);
+    console.time("DPERF");
+    const content = toByteArray(content64);
     const password = hexToBytes(passwordHex);
     const nonce = hexToBytes(nonceHex);
     const cipher = xchacha20poly1305(password, nonce);
     const decrypted = cipher.decrypt(content);
-    return bytesToUtf8(decrypted);
+    const result = bytesToUtf8(decrypted);
+    console.timeEnd("DPERF");
+    return result;
   } catch (e) {
     return "";
   }
