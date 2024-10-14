@@ -4,12 +4,11 @@ import { ErrorMessage } from "@/client/components/error";
 import { ScreenLoading } from "@/client/components/screen-loading";
 import { useDisclosure } from "@/client/hooks/use-disclosure";
 import { useAppStore } from "@/client/stores/app.store";
-import fclasses from "@/client/styles/form.module.scss";
 import { decryptVaultFormSchema } from "@/server/features/vault/vault.schema";
 import { DecryptVaultFormValues, EncryptionConfigs, VaultConfigs } from "@/server/features/vault/vault.type";
 import { decryptText, hashPassword } from "@/shared/utils/crypto.util";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Card, PasswordInput, Title } from "@mantine/core";
+import { Button, Card, PasswordInput, Text, Title } from "@mantine/core";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -132,9 +131,7 @@ export const LinkDetail = ({ item }: Props) => {
         padding="lg"
         radius="md"
         pos="relative"
-        component="form"
         onSubmit={handleSubmit(handleFormSubmit)}
-        className={fclasses["form"]}
         maw="30rem"
         mb="md"
         style={{
@@ -159,7 +156,7 @@ export const LinkDetail = ({ item }: Props) => {
         {!!originalLink && (
           <>
             <Link href={originalLink}>{originalLink}</Link>
-            <Title my="sm">Would you like to proceed?</Title>
+            <Text my="sm">Would you like to proceed?</Text>
             <Button component="a" href={originalLink} variant="filled">
               Continue
             </Button>
