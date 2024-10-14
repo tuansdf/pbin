@@ -18,34 +18,34 @@ import { fromByteArray, toByteArray } from "base64-js";
 import { customAlphabet } from "nanoid";
 
 export const encryptText = async (contentStr: string, passwordHex: string, nonceHex: string): Promise<string> => {
+  console.time("EPERF");
   try {
-    console.time("EPERF");
     const nonce = hexToBytes(nonceHex);
     const password = hexToBytes(passwordHex);
     const cipher = xchacha20poly1305(password, nonce);
     const content = utf8ToBytes(contentStr);
     const encrypted = cipher.encrypt(content);
-    const result = fromByteArray(encrypted);
-    console.timeEnd("EPERF");
-    return result;
+    return fromByteArray(encrypted);
   } catch (e) {
     return "";
+  } finally {
+    console.timeEnd("EPERF");
   }
 };
 
 export const decryptText = async (content64: string, passwordHex: string, nonceHex: string): Promise<string> => {
+  console.time("DPERF");
   try {
-    console.time("DPERF");
     const content = toByteArray(content64);
     const password = hexToBytes(passwordHex);
     const nonce = hexToBytes(nonceHex);
     const cipher = xchacha20poly1305(password, nonce);
     const decrypted = cipher.decrypt(content);
-    const result = bytesToUtf8(decrypted);
-    console.timeEnd("DPERF");
-    return result;
+    return bytesToUtf8(decrypted);
   } catch (e) {
     return "";
+  } finally {
+    console.timeEnd("DPERF");
   }
 };
 
@@ -80,19 +80,18 @@ export const generateHashConfigs = (): HashConfigs => {
 };
 
 export const hashPassword = async (passwordStr: string, configs: HashConfigs): Promise<string> => {
+  console.time("HPERF");
   try {
     await new Promise((r) => setTimeout(r, 100));
-
-    console.time("HPERF");
     const hashed = await pbkdf2Async(sha256, utf8ToBytes(passwordStr), hexToBytes(String(configs.salt)), {
       c: Number(configs.iterations),
       dkLen: Number(configs.keySize),
     });
-    console.timeEnd("HPERF");
-
     return bytesToHex(hashed);
   } catch {
     return passwordStr;
+  } finally {
+    console.timeEnd("HPERF");
   }
 };
 
