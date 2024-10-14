@@ -156,7 +156,9 @@ export const LinkDetail = ({ item }: Props) => {
         {!!originalLink && (
           <>
             <Link href={originalLink}>{originalLink}</Link>
-            <Text my="sm">Would you like to proceed?</Text>
+            <Text my="sm" fw="bold">
+              Would you like to proceed?
+            </Text>
             <Button component="a" href={originalLink} variant="filled">
               Continue
             </Button>
@@ -164,7 +166,7 @@ export const LinkDetail = ({ item }: Props) => {
         )}
       </Card>
 
-      <ScreenLoading isLoading={isLoading} />
+      <ScreenLoading isLoading={isLoading && !originalLink} />
     </>
   );
 };
