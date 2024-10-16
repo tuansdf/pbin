@@ -4,6 +4,6 @@ export const metadata = {
   title: "Create a note",
 };
 
-export default async function Page() {
+export default function Page() {
   return <NoteAdd />;
 }

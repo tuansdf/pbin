@@ -9,7 +9,6 @@ import {
   VAULT_EXPIRE_1_HOUR,
   VAULT_EXPIRE_1_MONTH,
   VAULT_EXPIRE_1_WEEK,
-  VAULT_EXPIRE_4_MONTHS,
 } from "@/shared/constants/common.constant";
 import { createNoteFormSchema } from "@/server/features/vault/vault.schema";
 import { CreateVaultFormValues } from "@/server/features/vault/vault.type";
@@ -128,9 +127,5 @@ const expireOptions = [
   {
     value: String(VAULT_EXPIRE_1_MONTH),
     label: "1 month",
-  },
-  {
-    value: String(VAULT_EXPIRE_4_MONTHS),
-    label: "4 months",
   },
 ];

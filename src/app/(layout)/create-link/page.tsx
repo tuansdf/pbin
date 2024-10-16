@@ -4,6 +4,6 @@ export const metadata = {
   title: "Shorten a URL",
 };
 
-export default async function Page() {
+export default function Page() {
   return <LinkAdd />;
 }

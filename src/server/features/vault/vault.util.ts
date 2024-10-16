@@ -30,8 +30,7 @@ export const getVaultExpiredTime = (expiresAt?: number): number => {
   if (!expiresAt) return result.valueOf();
   if (expiresAt < MIN_EXPIRES_TIME) expiresAt = MIN_EXPIRES_TIME;
   if (expiresAt > MAX_EXPIRES_TIME) expiresAt = MAX_EXPIRES_TIME;
-  result.add(expiresAt, "minute");
-  return result.valueOf();
+  return result.add(expiresAt, "minute").valueOf();
 };
 
 export const getVaultIdSize = (type?: number): number => {

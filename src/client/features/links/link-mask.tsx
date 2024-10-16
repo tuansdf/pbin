@@ -6,7 +6,7 @@ import { ScreenLoading } from "@/client/components/screen-loading";
 import { useAppStore } from "@/client/stores/app.store";
 import fclasses from "@/client/styles/form.module.scss";
 import {
-  DEFAULT_LINK_ID_SIZE,
+  DEFAULT_NOTE_ID_SIZE,
   VAULT_EXPIRE_1_DAY,
   VAULT_EXPIRE_1_HOUR,
   VAULT_EXPIRE_1_MONTH,
@@ -34,7 +34,7 @@ const defaultFormValues: CreateVaultFormValues = {
   expiresAt: VAULT_EXPIRE_1_WEEK,
 };
 
-export const LinkAdd = () => {
+export const LinkMask = () => {
   const {
     handleSubmit,
     register,
@@ -70,7 +70,7 @@ export const LinkAdd = () => {
           masterPassword: masterPassword,
           expiresAt: getVaultExpiresTime(Number(data.expiresAt)),
         },
-        DEFAULT_LINK_ID_SIZE,
+        DEFAULT_NOTE_ID_SIZE,
       );
       addPassword(password);
       const shortLink = window.location.origin + `/s/${body.publicId}`;
@@ -104,26 +104,18 @@ export const LinkAdd = () => {
         maw="30rem"
         mb="md"
       >
-        <Title>Shorten a URL</Title>
+        <Title>Mask a URL</Title>
         <TextInput
           autoComplete="off"
           autoFocus
           withAsterisk
-          label="Original URL"
+          label="Long URL"
           readOnly={isSubmitted}
           {...register("content")}
           error={errors.content?.message}
         />
         {!isSubmitted && (
           <>
-            <PasswordInput
-              type="password"
-              autoComplete="current-password"
-              label="Password"
-              {...register("password")}
-              error={errors.password?.message}
-              description="Random password will be generated when left empty"
-            />
             <PasswordInput
               type="password"
               autoComplete="current-password"
@@ -137,22 +129,15 @@ export const LinkAdd = () => {
         )}
         {isSubmitted && (
           <>
-            <TextInput readOnly label="Short URL" value={shortLink} />
+            <TextInput readOnly label="Short URL" value={shortLinkWithPassword} />
             <Group>
-              <Button component="a" href={shortLink} target="_blank" variant="default">
+              <Button component="a" href={shortLinkWithPassword} target="_blank" variant="default">
                 Open
               </Button>
-              <CopyButton value={shortLink}>
-                {({ copied, copy }) => (
-                  <Button color={copied ? "teal" : "blue"} onClick={copy}>
-                    {copied ? "Copied URL" : "Copy URL"}
-                  </Button>
-                )}
-              </CopyButton>
               <CopyButton value={shortLinkWithPassword}>
                 {({ copied, copy }) => (
                   <Button color={copied ? "teal" : "blue"} onClick={copy}>
-                    {copied ? "Copied URL" : "Copy URL (password embed)"}
+                    {copied ? "Copied URL" : "Copy URL"}
                   </Button>
                 )}
               </CopyButton>
@@ -166,7 +151,7 @@ export const LinkAdd = () => {
         )}
         {isSubmitted && (
           <Button type="reset" w="max-content" onClick={resetForm}>
-            Shorten another
+            Mask another
           </Button>
         )}
       </Card>
