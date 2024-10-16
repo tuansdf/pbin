@@ -10,9 +10,9 @@ import { DecryptVaultFormValues, EncryptionConfigs, VaultConfigs } from "@/serve
 import { decryptText, hashPassword } from "@/shared/utils/crypto.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, PasswordInput, Text, Title } from "@mantine/core";
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import Link from "next/link";
 
 type Props = {
   item: {
@@ -159,7 +159,9 @@ export const LinkDetail = ({ item }: Props) => {
         )}
         {!!originalLink && (
           <>
-            <Link href={originalLink}>{originalLink}</Link>
+            <Link href={originalLink} style={{ textAlign: "center" }}>
+              {originalLink}
+            </Link>
             <Text fw="bold" ta="center">
               Would you like to proceed?
             </Text>

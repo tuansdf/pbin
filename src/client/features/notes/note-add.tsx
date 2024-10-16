@@ -16,6 +16,7 @@ import {
   encryptText,
   generateEncryptionConfigs,
   generateHashConfigs,
+  generateId,
   generatePassword,
   hashPassword,
 } from "@/shared/utils/crypto.util";
@@ -57,18 +58,20 @@ export const NoteAdd = () => {
 
       // encrypt data
       const encrypted = await encryptText(data.content!, randomPassword, encryptionConfigs.nonce);
-      let masterPassword = data.masterPassword ? await hashPassword(data.masterPassword, passwordConfigs) : undefined;
+      const masterPassword = data.masterPassword ? await hashPassword(data.masterPassword, passwordConfigs) : undefined;
+      const guestPassword = generateId(DEFAULT_NOTE_ID_SIZE);
 
       const body = await createVault(
         {
           content: encrypted || "",
-          masterPassword: masterPassword,
+          masterPassword,
+          guestPassword,
           configs: { hash: passwordConfigs, encryption: encryptionConfigs },
           expiresAt: getVaultExpiresTime(Number(data.expiresAt)),
         },
         DEFAULT_NOTE_ID_SIZE,
       );
-      const link = `/n/${body.publicId}#${randomPassword}`;
+      const link = `/n/${body.publicId}?${guestPassword}#${randomPassword}`;
       addNoteUrl(window.location.origin + link);
       router.push(link);
     } catch (e) {

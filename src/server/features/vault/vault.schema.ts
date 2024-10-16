@@ -93,6 +93,7 @@ const urlSchema = z
 export const createVaultRequestSchema: z.ZodType<CreateVaultRequest> = z.object({
   content: contentSchema.max(MAX_CONTENT_SERVER, "Invalid content"),
   masterPassword: passwordSchema.optional(),
+  guestPassword: z.string().optional(),
   configs: vaultConfigsSchema,
   expiresAt: z.coerce.number().optional(),
 });

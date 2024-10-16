@@ -18,6 +18,7 @@ import {
   encryptText,
   generateEncryptionConfigs,
   generateHashConfigs,
+  generateId,
   generatePassword,
   hashPassword,
 } from "@/shared/utils/crypto.util";
@@ -63,17 +64,19 @@ export const LinkMask = () => {
       ] as const;
       const [password, masterPassword] = await Promise.all(promises);
       const encrypted = await encryptText(data.content!, password, encryptionConfigs.nonce);
+      const guestPassword = generateId(DEFAULT_NOTE_ID_SIZE);
       const body = await createVault(
         {
           content: encrypted || "",
           configs: { hash: hashConfigs, encryption: encryptionConfigs },
-          masterPassword: masterPassword,
+          masterPassword,
+          guestPassword,
           expiresAt: getVaultExpiresTime(Number(data.expiresAt)),
         },
         DEFAULT_NOTE_ID_SIZE,
       );
       addPassword(password);
-      const shortLink = window.location.origin + `/s/${body.publicId}`;
+      const shortLink = window.location.origin + `/s/${body.publicId}?${guestPassword}`;
       addShortUrl(shortLink);
       setShortLink(shortLink);
       setShortLinkWithPassword(shortLink + `#${password}`);
@@ -109,7 +112,7 @@ export const LinkMask = () => {
           autoComplete="off"
           autoFocus
           withAsterisk
-          label="Long URL"
+          label="Original URL"
           readOnly={isSubmitted}
           {...register("content")}
           error={errors.content?.message}
@@ -129,7 +132,7 @@ export const LinkMask = () => {
         )}
         {isSubmitted && (
           <>
-            <TextInput readOnly label="Short URL" value={shortLinkWithPassword} />
+            <TextInput readOnly label="Masked URL" value={shortLinkWithPassword} />
             <Group>
               <Button component="a" href={shortLinkWithPassword} target="_blank" variant="default">
                 Open

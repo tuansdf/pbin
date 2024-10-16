@@ -22,8 +22,9 @@ export type VaultConfigs = {
 export type CreateVaultRequest = {
   content: string;
   configs: VaultConfigs;
-  masterPassword?: string;
   expiresAt?: number;
+  masterPassword?: string;
+  guestPassword?: string;
 };
 
 export type CreateVaultResponse = {

@@ -49,11 +49,11 @@ const MAX_ROUNDS = 16;
 const BASE_CONTENT_EXTRA = "content";
 const BASE_SALT_EXTRA = "salt";
 const BASE_ENCRYPTION_EXTRA = "encryption";
-export const generateFakeContent = async (base: string): Promise<string> => {
+export const generateFakeContent = async (base: string, maxRounds: number = MAX_ROUNDS): Promise<string> => {
   base = (await createBase(base + BASE_CONTENT_EXTRA)).toLowerCase();
   let rounds = HEX_ALPHABET.indexOf(base[0]);
   if (rounds < MIN_ROUNDS) rounds = MIN_ROUNDS;
-  if (rounds > MAX_ROUNDS) rounds = MAX_ROUNDS;
+  if (rounds > maxRounds) rounds = maxRounds;
   rounds *= 2;
   const promises: Promise<string>[] = [];
   for (let i = 0; i < rounds; i++) {

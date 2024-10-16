@@ -12,6 +12,7 @@ import {
 import { CustomException } from "@/shared/exceptions/custom-exception";
 import { createHash, createHashSync, generateId, hashPassword } from "@/shared/utils/crypto.util";
 import dayjs from "dayjs";
+import { DEFAULT_LINK_ID_SIZE } from "@/shared/constants/common.constant";
 
 const HASHED_SUPER_PASSWORD = ENV.SUPER_PASSWORD ? createHashSync(ENV.SUPER_PASSWORD) : undefined;
 const ID_REGEX = /^[a-zA-Z0-9]+$/;
@@ -26,6 +27,7 @@ class VaultService {
       publicId,
       content: data.content,
       masterPassword: hashedPassword,
+      guestPassword: data.guestPassword,
       configs: JSON.stringify(data.configs),
       expiresAt,
     });
@@ -34,15 +36,17 @@ class VaultService {
 
   public getTopByPublicId = async (
     id: string,
+    guestPassword?: string | null,
   ): Promise<{ publicId: string; content: string | null; configs?: VaultConfigs } | null> => {
     if (!ID_REGEX.test(id)) return null;
 
     const vault = await vaultRepository.findTopByPublicId(id);
-    if (!vault) {
+    if (!vault || (guestPassword && vault.guestPassword !== guestPassword)) {
+      const base = id + (guestPassword || "");
       return {
         publicId: id,
-        content: await generateFakeContent(id),
-        configs: { hash: await generateFakeHashConfigs(id), encryption: await generateFakeEncryptionConfigs(id) },
+        content: await generateFakeContent(base, id.length === DEFAULT_LINK_ID_SIZE ? 8 : undefined),
+        configs: { hash: await generateFakeHashConfigs(base), encryption: await generateFakeEncryptionConfigs(base) },
       };
     }
     let configs = this.parseVaultConfigs(vault.configs!);
